@@ -1,0 +1,39 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Grep",
+      "Glob",
+      "Bash(./gradlew test:*)",
+      "Bash(git diff:*)",
+      "mcp__incident_data__search_logs",
+      "mcp__incident_data__get_deployment"
+    ],
+    "ask": [
+      "Edit",
+      "Write",
+      "WebFetch"
+    ],
+    "deny": [
+      "Bash(rm:*)",
+      "Bash(git reset:*)",
+      "Bash(kubectl apply:*)",
+      "Bash(kubectl delete:*)",
+      "mcp__incident_data__deploy",
+      "mcp__incident_data__rollback"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 hooks/pre_tool_guard.py"
+          }
+        ]
+      }
+    ]
+  }
+}

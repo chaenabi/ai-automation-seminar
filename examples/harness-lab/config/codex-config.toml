@@ -1,0 +1,24 @@
+# Copy the relevant sections to a trusted project's .codex/config.toml.
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+
+[sandbox_workspace_write]
+network_access = false
+
+[agents]
+max_threads = 4
+max_depth = 1
+
+[mcp_servers.incident_data]
+url = "https://mcp.example.internal/mcp"
+bearer_token_env_var = "INCIDENT_MCP_TOKEN"
+enabled_tools = ["search_logs", "get_deployment"]
+disabled_tools = ["deploy", "rollback", "delete_log"]
+default_tools_approval_mode = "prompt"
+required = false
+
+[mcp_servers.incident_data.tools.search_logs]
+approval_mode = "approve"
+
+[mcp_servers.incident_data.tools.get_deployment]
+approval_mode = "approve"

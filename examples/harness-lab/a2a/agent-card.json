@@ -1,0 +1,44 @@
+{
+  "name": "Payment Incident Agent",
+  "description": "Investigates payment incidents and returns evidence-backed reports.",
+  "version": "1.0.0",
+  "supportedInterfaces": [
+    {
+      "url": "https://agents.example.internal/payment",
+      "protocolBinding": "JSONRPC",
+      "protocolVersion": "1.0"
+    }
+  ],
+  "capabilities": {
+    "streaming": true,
+    "pushNotifications": false
+  },
+  "securitySchemes": {
+    "oauth": {
+      "oauth2SecurityScheme": {
+        "description": "Company OAuth",
+        "oauth2MetadataUrl": "https://auth.example.internal/.well-known/oauth-authorization-server"
+      }
+    }
+  },
+  "securityRequirements": [
+    {
+      "schemes": {
+        "oauth": ["incident:read"]
+      }
+    }
+  ],
+  "defaultInputModes": ["text/plain", "application/json"],
+  "defaultOutputModes": ["text/markdown", "application/json"],
+  "skills": [
+    {
+      "id": "triage-payment-incident",
+      "name": "Triage payment incident",
+      "description": "Correlates sanitized logs, deploys, and test results.",
+      "tags": ["payment", "incident", "sre"],
+      "examples": ["Investigate duplicate captures after deploy 8f31c2"],
+      "inputModes": ["text/plain", "application/json"],
+      "outputModes": ["text/markdown", "application/json"]
+    }
+  ]
+}
