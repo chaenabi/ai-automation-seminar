@@ -1,0 +1,993 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI를 통한 자동화: 지시, 맥락, 그리고 MCP</title>
+    <style>
+      @font-face {
+        font-family: "Pretendard Variable";
+        src: url("PretendardVariable.woff2") format("woff2-variations");
+        font-weight: 45 920;
+        font-display: swap;
+      }
+
+      :root {
+        --navy: #101820;
+        --navy-2: #192632;
+        --paper: #f7f4ed;
+        --white: #fff;
+        --ink: #182028;
+        --muted: #66717a;
+        --teal: #087f8c;
+        --teal-dark: #075f69;
+        --red: #c5483d;
+        --gold: #d7a52b;
+        --green: #287a54;
+        --line: #d8d7d1;
+        --sidebar: 276px;
+      }
+
+      * { box-sizing: border-box; }
+      html, body { width: 100%; height: 100%; margin: 0; }
+      body {
+        overflow: hidden;
+        color: var(--ink);
+        background: var(--navy);
+        font-family: "Pretendard Variable", Pretendard, system-ui, sans-serif;
+        word-break: keep-all;
+      }
+      button { font: inherit; }
+      strong, .accent { color: var(--red); }
+
+      .deck { position: relative; width: 100vw; height: 100vh; }
+      .slide {
+        position: absolute;
+        inset: 0;
+        display: none;
+        overflow: auto;
+        padding: clamp(34px, 5vw, 72px);
+        background:
+          linear-gradient(90deg, rgba(8,127,140,.035) 1px, transparent 1px),
+          linear-gradient(rgba(8,127,140,.035) 1px, transparent 1px),
+          var(--paper);
+        background-size: 40px 40px;
+      }
+      .slide.active {
+        display: grid;
+        align-content: center;
+      }
+      body.sidebar-open .slide { left: var(--sidebar); }
+      .slide.dark {
+        color: var(--white);
+        background:
+          radial-gradient(circle at 82% 20%, rgba(8,127,140,.45), transparent 32%),
+          linear-gradient(135deg, var(--navy), var(--navy-2));
+      }
+      .slide.image-slide { background: #e9e2d2; }
+      .content { width: min(1120px, 100%); margin: 0 auto; }
+      .content.narrow { width: min(940px, 100%); }
+      .kicker {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 18px;
+        color: var(--teal-dark);
+        font-size: clamp(15px, 1.4vw, 19px);
+        font-weight: 850;
+        letter-spacing: .05em;
+      }
+      .kicker::before {
+        content: "";
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--red);
+      }
+      .dark .kicker { color: #bceaf0; }
+      h1, h2, h3, p { margin-top: 0; }
+      h1 {
+        margin-bottom: 24px;
+        font-size: clamp(48px, 7vw, 94px);
+        line-height: 1.06;
+        letter-spacing: -.035em;
+      }
+      h2 {
+        margin-bottom: 24px;
+        font-size: clamp(36px, 4.8vw, 66px);
+        line-height: 1.12;
+        letter-spacing: -.025em;
+      }
+      h3 { margin-bottom: 12px; font-size: clamp(22px, 2.2vw, 31px); }
+      p, li {
+        font-size: clamp(20px, 2vw, 28px);
+        line-height: 1.48;
+      }
+      p { color: var(--muted); }
+      .dark p { color: #d7e2e8; }
+      .lead { font-size: clamp(25px, 2.8vw, 38px); }
+      .huge { font-size: clamp(40px, 6vw, 82px); font-weight: 900; line-height: 1.12; }
+      .center { text-align: center; }
+      .center p { margin-left: auto; margin-right: auto; }
+      .quote {
+        margin: 28px 0;
+        padding: 25px 30px;
+        border-left: 8px solid var(--red);
+        color: var(--ink);
+        background: var(--white);
+        box-shadow: 0 16px 40px rgba(16,24,32,.08);
+        font-size: clamp(27px, 3.4vw, 48px);
+        font-weight: 850;
+        line-height: 1.35;
+      }
+      .dark .quote { color: var(--white); background: rgba(255,255,255,.08); }
+
+      .grid { display: grid; gap: 18px; margin-top: 28px; }
+      .cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .card {
+        padding: 22px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: rgba(255,255,255,.94);
+        box-shadow: 0 12px 28px rgba(16,24,32,.07);
+      }
+      .card p, .card li { font-size: clamp(17px, 1.45vw, 21px); }
+      .card p:last-child { margin-bottom: 0; }
+      .dark .card { color: var(--ink); }
+      .dark .card h3 { color: var(--ink); }
+      .dark .card p, .dark .card li { color: var(--muted); }
+      .bad { border-top: 7px solid var(--red); }
+      .good { border-top: 7px solid var(--green); }
+      .tag {
+        display: inline-block;
+        margin-bottom: 12px;
+        padding: 5px 10px;
+        border-radius: 999px;
+        color: var(--white);
+        background: var(--teal);
+        font-size: 14px;
+        font-weight: 850;
+      }
+      .bad .tag { background: var(--red); }
+      .good .tag { background: var(--green); }
+      ul { margin: 18px 0 0; padding-left: 30px; }
+      li { margin: 9px 0; }
+      .small li { font-size: clamp(16px, 1.35vw, 20px); }
+
+      .fragment {
+        opacity: 0;
+        transform: translateY(16px);
+        transition: opacity .22s ease, transform .22s ease;
+        pointer-events: none;
+      }
+      .fragment.visible {
+        opacity: 1;
+        transform: none;
+        pointer-events: auto;
+      }
+      .reveal-line {
+        margin: 10px 0;
+        padding: 12px 16px;
+        border-left: 4px solid var(--teal);
+        color: var(--ink);
+        background: rgba(255,255,255,.8);
+        font-size: clamp(17px, 1.55vw, 22px);
+        line-height: 1.42;
+      }
+      .annotation {
+        display: inline-block;
+        margin-left: 8px;
+        padding: 3px 9px;
+        border-radius: 999px;
+        color: #fff;
+        background: var(--red);
+        font-size: .72em;
+        font-weight: 850;
+      }
+
+      .hero-image {
+        display: block;
+        max-width: min(76vw, 720px);
+        max-height: 76vh;
+        margin: 0 auto;
+        object-fit: contain;
+        filter: drop-shadow(0 20px 28px rgba(16,24,32,.18));
+      }
+      .artwork-image {
+        width: auto;
+        max-width: min(92vw, 940px);
+        max-height: 86vh;
+      }
+      .image-slide {
+        padding-top: clamp(16px, 2vw, 28px);
+        padding-bottom: clamp(16px, 2vw, 28px);
+      }
+      .wide-image { max-width: min(88vw, 940px); max-height: 58vh; }
+      .image-caption {
+        margin-top: 14px;
+        color: var(--muted);
+        text-align: center;
+        font-size: 16px;
+      }
+      .split {
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) minmax(300px, .8fr);
+        gap: 38px;
+        align-items: center;
+      }
+
+      .timeline {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-top: 38px;
+      }
+      .era {
+        position: relative;
+        min-height: 260px;
+        padding: 26px;
+        border-radius: 14px;
+        color: #fff;
+        background: var(--navy-2);
+      }
+      .era:nth-child(2) { background: var(--teal-dark); }
+      .era:nth-child(3) { background: var(--red); }
+      .era b { display: block; margin-bottom: 20px; color: #fff; font-size: 42px; }
+      .era p { color: #e7eff2; font-size: 20px; }
+
+      pre {
+        margin: 18px 0 0;
+        padding: 20px;
+        overflow: auto;
+        border-radius: 10px;
+        color: #e8f2f5;
+        background: #14212b;
+        font: 600 clamp(15px, 1.35vw, 20px)/1.55 ui-monospace, SFMono-Regular, Consolas, monospace;
+        white-space: pre-wrap;
+      }
+      .token-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0; }
+      .token {
+        padding: 9px 12px;
+        border-radius: 8px;
+        color: var(--teal-dark);
+        background: #d8eef0;
+        font: 800 18px ui-monospace, monospace;
+      }
+      .token small { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; }
+      .weight-chart {
+        display: flex;
+        align-items: end;
+        gap: 15px;
+        height: 185px;
+        padding: 18px 18px 0;
+        border-left: 2px solid var(--ink);
+        border-bottom: 2px solid var(--ink);
+      }
+      .bar-col {
+        position: relative;
+        flex: 1;
+        min-width: 42px;
+        height: var(--h);
+        border-radius: 6px 6px 0 0;
+        background: var(--teal);
+      }
+      .bar-col.best { background: var(--red); }
+      .bar-col::before {
+        content: attr(data-score);
+        position: absolute;
+        top: -28px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: var(--ink);
+        font-size: 16px;
+        font-weight: 900;
+      }
+      .bar-col span {
+        position: absolute;
+        bottom: -28px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 14px;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+      .flow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin: 30px 0;
+        flex-wrap: wrap;
+      }
+      .node {
+        padding: 17px 20px;
+        border: 2px solid var(--teal);
+        border-radius: 10px;
+        background: #fff;
+        font-size: clamp(18px, 1.6vw, 23px);
+        font-weight: 850;
+        text-align: center;
+      }
+      .arrow { color: var(--red); font-size: 32px; font-weight: 900; }
+      .probability {
+        display: grid;
+        grid-template-columns: 160px 1fr 72px;
+        gap: 12px;
+        align-items: center;
+        margin: 13px 0;
+        font-size: 20px;
+        font-weight: 800;
+      }
+      .meter { height: 18px; border-radius: 999px; background: #ddd; overflow: hidden; }
+      .meter i { display: block; width: var(--w); height: 100%; background: var(--teal); }
+      .probability.best .meter i { background: var(--red); }
+      .prediction-example {
+        padding: 18px 22px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: rgba(255,255,255,.82);
+      }
+      .prediction-example + .prediction-example { margin-top: 18px; }
+      .prediction-example h3 { font-size: clamp(20px, 1.9vw, 27px); }
+      .prediction-example .probability {
+        grid-template-columns: 130px 1fr 62px;
+        margin: 9px 0;
+        font-size: 17px;
+      }
+      .engineering-card {
+        position: relative;
+        overflow: hidden;
+      }
+      .engineering-card::after {
+        content: attr(data-order);
+        position: absolute;
+        top: -20px;
+        right: 8px;
+        color: rgba(8,127,140,.08);
+        font-size: 100px;
+        font-weight: 920;
+      }
+      .engineering-card p { position: relative; z-index: 1; }
+      .example-box {
+        position: relative;
+        z-index: 1;
+        margin-top: 14px;
+        padding: 13px;
+        border-radius: 8px;
+        color: #dce8ed;
+        background: var(--navy-2);
+        font-size: clamp(14px, 1.2vw, 18px);
+        line-height: 1.48;
+      }
+
+      .dialogue {
+        margin: 12px 0;
+        padding: 13px 17px;
+        border-radius: 12px 12px 12px 2px;
+        background: #fff;
+        font-size: clamp(17px, 1.5vw, 22px);
+        line-height: 1.45;
+      }
+      .dialogue.owner { margin-left: 8%; border-left: 5px solid var(--red); }
+      .dialogue.worker { margin-right: 8%; border-left: 5px solid var(--teal); }
+      .answer {
+        margin-top: 15px;
+        padding: 18px;
+        border-radius: 10px;
+        color: #dce8ed;
+        background: var(--navy-2);
+        font-size: clamp(15px, 1.25vw, 19px);
+        line-height: 1.52;
+      }
+      .mcp-map {
+        display: grid;
+        grid-template-columns: .8fr 1.2fr .8fr;
+        gap: 16px;
+        align-items: center;
+        margin-top: 28px;
+      }
+      .mcp-center {
+        padding: 28px;
+        border-radius: 50%;
+        color: #fff;
+        background: var(--teal);
+        font-size: 34px;
+        font-weight: 900;
+        text-align: center;
+      }
+
+      .sidebar {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        display: flex;
+        flex-direction: column;
+        width: var(--sidebar);
+        color: #dbe6eb;
+        background: #0b1218;
+        transform: translateX(-100%);
+        transition: transform .2s ease;
+      }
+      body.sidebar-open .sidebar { transform: none; }
+      .sidebar-head {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 16px;
+        border-bottom: 1px solid rgba(255,255,255,.12);
+      }
+      .sidebar-head strong { flex: 1; color: #fff; }
+      .sidebar button, .controls button, .menu-button {
+        border: 1px solid rgba(255,255,255,.2);
+        color: #fff;
+        background: rgba(255,255,255,.08);
+        cursor: pointer;
+      }
+      .close-menu { width: 34px; height: 34px; border-radius: 6px; }
+      .nav-list { margin: 0; padding: 8px; overflow-y: auto; list-style: none; }
+      .nav-list li { margin: 0; }
+      .nav-item {
+        display: grid;
+        grid-template-columns: 25px 1fr;
+        gap: 7px;
+        width: 100%;
+        padding: 9px;
+        border: 0 !important;
+        border-radius: 7px;
+        color: #b8c7cf !important;
+        background: transparent !important;
+        text-align: left;
+        font-size: 13px;
+        line-height: 1.3;
+      }
+      .nav-item.active { color: #fff !important; background: var(--teal) !important; }
+      .menu-button {
+        position: fixed;
+        top: 16px;
+        left: 16px;
+        z-index: 45;
+        width: 44px;
+        height: 44px;
+        border-radius: 8px;
+        background: rgba(11,18,24,.9);
+        font-size: 20px;
+      }
+      body.sidebar-open .menu-button { display: none; }
+      .controls {
+        position: fixed;
+        right: 18px;
+        bottom: 18px;
+        z-index: 45;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px;
+        border-radius: 9px;
+        color: #fff;
+        background: rgba(11,18,24,.9);
+      }
+      .controls button { width: 40px; height: 38px; border-radius: 6px; font-weight: 900; }
+      .counter { min-width: 68px; text-align: center; font-size: 13px; }
+      .progress { position: fixed; bottom: 0; left: 0; z-index: 44; width: 100%; height: 5px; background: rgba(255,255,255,.2); }
+      .progress-bar { height: 100%; width: 0; background: var(--red); transition: width .2s ease; }
+      .click-hint {
+        position: fixed;
+        left: 50%;
+        bottom: 23px;
+        z-index: 42;
+        transform: translateX(-50%);
+        color: #71808a;
+        font-size: 13px;
+      }
+
+      @media (max-width: 900px) {
+        body.sidebar-open .slide { left: 0; }
+        .cols-2, .cols-3, .timeline, .split, .mcp-map { grid-template-columns: 1fr; }
+        .slide { padding: 70px 24px 85px; }
+        .slide.active { align-content: start; }
+        .timeline .era { min-height: auto; }
+        .click-hint { display: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <button class="menu-button" type="button" aria-label="목차 열기" onclick="toggleSidebar()">☰</button>
+    <nav class="sidebar" aria-label="슬라이드 목차">
+      <div class="sidebar-head">
+        <strong>AI 자동화 세미나</strong>
+        <button class="close-menu" type="button" aria-label="목차 닫기" onclick="toggleSidebar()">«</button>
+      </div>
+      <ul class="nav-list" id="navList"></ul>
+    </nav>
+
+    <main class="deck">
+      <section class="slide dark active" data-title="AI를 통한 자동화?">
+        <div class="content">
+          <div class="kicker">AI AUTOMATION</div>
+          <h1>AI를 통한 자동화?</h1>
+          <p class="lead">새롭게 등장한 개념이 아니다.</p>
+          <p class="lead fragment">AI가 없던 시절에도 사람들은 업무 자동화를 해왔다.</p>
+          <p class="huge fragment">어떻게? <span class="accent">→</span></p>
+        </div>
+      </section>
+
+      <section class="slide image-slide" data-title="자동화의 오래된 풍경">
+        <div class="content center">
+          <img class="hero-image artwork-image" src="assets/김홍도_타작.png" alt="김홍도의 타작도" />
+          <p class="image-caption">김홍도, 풍속도첩 중 「타작」</p>
+        </div>
+      </section>
+
+      <section class="slide image-slide" data-title="지시와 관리 감독">
+        <div class="content center">
+          <img class="hero-image artwork-image" src="assets/김홍도_타작_관리감독.png" alt="타작 장면의 업무 지시와 관리 감독을 강조한 그림" />
+          <p class="image-caption">일을 나누고, 지시하고, 확인하는 구조</p>
+        </div>
+      </section>
+
+      <section class="slide dark" data-title="사람에게 지시, AI에게 지시">
+        <div class="content center">
+          <div class="kicker">같은 문제, 다른 수행자</div>
+          <p class="huge">사람이 사람에게<br />업무 지시하는 것</p>
+          <p class="lead">=</p>
+          <p class="huge">사람이 AI에게<br />업무 지시하는 것</p>
+        </div>
+      </section>
+
+      <section class="slide" data-title="돌쇠의 업무 명세">
+        <div class="content">
+          <div class="kicker">업무 위임 시뮬레이션</div>
+          <h2>새로 온 돌쇠에게 청소를 맡긴다면</h2>
+          <p>집주인 양반이 노비 시장에서 노비를 하나 데려왔다.</p>
+          <div id="dolsoeScript">
+            <div class="reveal-line fragment">“이제부터 넌 이 집에서 돌쇠다.” <span class="annotation fragment">Agent 생성</span></div>
+            <div class="reveal-line fragment">“전 주인이 말하길 넌 빗자루질을 잘한다고 들었다.”</div>
+            <div class="reveal-line fragment">“네 업무는 매일 아침 마당을 쓸고 집을 청소하는 것이다.” <span class="annotation fragment">Persona · 자아정체성</span></div>
+            <div class="reveal-line fragment">“오늘 처음 왔으니 혼선이 없게 설명하도록 하지.”</div>
+            <div class="reveal-line fragment">“집 먼지를 마당으로 쓸어낸 다음 마당 청소를 하거라.”</div>
+            <div class="reveal-line fragment">“비 오는 날에는 물걸레질 말고 마른걸레질만 하거라.”</div>
+            <div class="reveal-line fragment">“끝나면 장부에 상태, 작업, 결과를 기록하거라.” <span class="annotation fragment">Harness · 실행/관찰/기록</span></div>
+            <div class="reveal-line fragment">“물은 집 뒤 냇가에서 퍼오면 된다.”</div>
+            <div class="reveal-line fragment">“마른 걸레는 창고지기 박씨에게 받아 쓰거라.”</div>
+            <div class="reveal-line fragment">“그 외에 모르는 것은 박씨에게 물어보거라.” <span class="annotation fragment">RAG · 외부 지식 조회</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-title="그냥 청소하라고 했다면">
+        <div class="content">
+          <div class="kicker">불명확한 위임의 결과</div>
+          <h2>그냥 “청소해”라고 했다면?</h2>
+          <div class="flow fragment">
+            <div class="node">무엇을 청소?</div><div class="arrow">→</div>
+            <div class="node">돌쇠가 임의 판단</div><div class="arrow">→</div>
+            <div class="node">기대와 다른 결과</div>
+          </div>
+          <div class="quote fragment">“AI를 통한 자동화”는 새 개념이 아니다.</div>
+          <p class="lead fragment">그래서 우리는 새 도구의 이름보다, <strong>업무를 제대로 위임하는 원칙</strong>을 먼저 기억해야 한다.</p>
+        </div>
+      </section>
+
+      <section class="slide" data-title="Garbage In, Garbage Out">
+        <div class="content">
+          <div class="kicker">사람과 AI의 공통점</div>
+          <h2>왜 “새 개념이 아니다”가 중요한가?</h2>
+          <div class="quote">Garbage In, Garbage Out.<br /><small>입력값이 쓰레기이면 출력값도 쓰레기다.</small></div>
+          <div class="split fragment">
+            <p class="lead"><strong>AI는 인간보다 작업 속도가 빠르다.</strong><br />다만 사람에게 위임하든 AI에게 위임하든, 목표·맥락·제약·검증 기준이 부실하면 결과도 흔들린다.</p>
+            <img class="wide-image" src="assets/하지만빨랐죠.png" alt="하지만 빨랐죠 밈" />
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-title="왜 찰떡같이 답할까">
+        <div class="content">
+          <div class="kicker">프론티어 모델의 착시</div>
+          <h2>“개떡같이 말해도 찰떡같이 답하던데요?”</h2>
+          <div class="grid cols-3">
+            <article class="card fragment"><span class="tag">01</span><h3>사전 학습</h3><p>엄청난 양의 언어 패턴과 범용 지식을 이미 익혔다.</p></article>
+            <article class="card fragment"><span class="tag">02</span><h3>숨은 하네스</h3><p>시스템 지침, 안전 정책, 도구 규칙, 대화 관리가 서비스에 내장돼 있다.</p></article>
+            <article class="card fragment"><span class="tag">03</span><h3>일반적 기대</h3><p>범용 질문은 평균적인 답만으로도 많은 사용자가 만족한다.</p></article>
+          </div>
+          <p class="lead fragment"><strong>특수한 업무</strong>로 들어가는 순간, 내 조직의 맥락과 규칙을 직접 제공해야 한다.</p>
+        </div>
+      </section>
+
+      <section class="slide dark" data-title="인간의 눈물겨운 3단계">
+        <div class="content">
+          <div class="kicker">HISTORY OF INSTRUCTION</div>
+          <h2>인간이 기계에게 업무를 지시해 온<br />눈물겨운 3단계</h2>
+          <div class="timeline">
+            <div class="era fragment"><b>1.0</b><h3>코드</h3><p>모든 규칙을 사람이 명시한다.</p></div>
+            <div class="era fragment"><b>2.0</b><h3>데이터</h3><p>예시로 가중치를 학습한다.</p></div>
+            <div class="era fragment"><b>3.0</b><h3>자연어</h3><p>언어와 컨텍스트로 행동을 지시한다.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-title="Software 1.0">
+        <div class="content split">
+          <div>
+            <div class="kicker">SOFTWARE 1.0</div>
+            <h2>규칙을 항상 명시</h2>
+            <ul>
+              <li>조건, 반복, 순서를 코드로 작성</li>
+              <li>개발자에게 친숙하지만 일반인에게 어려움</li>
+              <li>예외가 늘수록 규칙도 폭발</li>
+            </ul>
+            <pre>if (vip) discount = 20;
+else if (coupon) discount = 10;
+else if (event &amp;&amp; firstBuy) ...
+else if (...) ...</pre>
+          </div>
+          <div class="center">
+            <img class="wide-image" src="assets/elseif지옥.png" alt="복잡하게 얽힌 else-if 지옥 예시" />
+            <p class="image-caption">명시적 규칙의 끝: else-if 지옥</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-title="Software 2.0">
+        <div class="content">
+          <div class="kicker">SOFTWARE 2.0</div>
+          <h2>규칙 대신 데이터로 가중치를 학습</h2>
+          <div class="grid cols-2">
+            <article class="card">
+              <h3>문장 → 토큰 ID</h3>
+              <p>“오늘 날씨가 좋다”</p>
+              <div class="token-row">
+                <span class="token">오늘<small>ID 3921</small></span>
+                <span class="token">날씨<small>ID 8174</small></span>
+                <span class="token">가<small>ID 214</small></span>
+                <span class="token">좋<small>ID 6508</small></span>
+                <span class="token">다<small>ID 105</small></span>
+              </div>
+              <p>실제 ID와 분할 방식은 모델마다 다르다.</p>
+            </article>
+            <article class="card">
+              <h3>가중치 조정 → 정답 확률 상승</h3>
+              <p>예측 목표: “오늘 날씨가 <strong>좋다</strong>”</p>
+              <div class="weight-chart" aria-label="학습이 진행되며 정답 확률이 높아지는 막대 그래프">
+                <div class="bar-col" data-score="24%" style="--h:24%"><span>초기</span></div>
+                <div class="bar-col fragment" data-score="48%" style="--h:48%"><span>학습 1</span></div>
+                <div class="bar-col fragment" data-score="71%" style="--h:71%"><span>학습 2</span></div>
+                <div class="bar-col best fragment" data-score="91%" style="--h:91%"><span>수렴</span></div>
+              </div>
+              <p style="margin-top:42px">정답과 예측의 오차를 계산하고, 오차가 줄어드는 방향으로 가중치를 조금씩 바꾼다.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-title="Software 3.0">
+        <div class="content">
+          <div class="kicker">SOFTWARE 3.0</div>
+          <h2>자연어로 행동을 프로그래밍</h2>
+          <p class="lead">누구에게나 친숙하고, 명시 규칙과 학습된 암묵 규칙이 함께 작동한다.</p>
+          <pre class="fragment">역할: 당신은 고객지원 담당자입니다.
+목표: 환불 요청의 긴급도를 분류하세요.
+규칙: 정책 문서에 없는 내용은 추측하지 마세요.
+출력: {"등급": "...", "이유": "...", "다음 행동": "..."}</pre>
+          <div class="quote fragment">행동을 바꾸려면 코드를 다시 학습시키는 대신, <strong>컨텍스트를 바꾼다.</strong></div>
+        </div>
+      </section>
+
+      <section class="slide" data-title="겉은 3.0, 속은 2.0">
+        <div class="content">
+          <div class="kicker">중요한 연결</div>
+          <h2>지시 방식은 변했지만,<br />AI의 계산 방식이 사라진 것은 아니다</h2>
+          <div class="flow">
+            <div class="node">사람의 언어</div><div class="arrow">→</div>
+            <div class="node">토큰 분할</div><div class="arrow">→</div>
+            <div class="node">토큰 ID</div><div class="arrow">→</div>
+            <div class="node">학습된 가중치</div><div class="arrow">→</div>
+            <div class="node">다음 토큰</div>
+          </div>
+          <p class="lead">Software 3.0은 자연어 인터페이스다. 그 아래에서는 Software 2.0의 학습된 가중치가 계속 계산한다.</p>
+          <p class="fragment"><strong>도구가 필요하면</strong> 모델은 자연어 의도를 구조화된 호출이나 코드로 변환해 실행 환경에 요청한다.</p>
+        </div>
+      </section>
+
+      <section class="slide" data-title="다음 단어를 고르는 기계">
+        <div class="content">
+          <div class="kicker">NEXT TOKEN PREDICTION</div>
+          <h2>문맥에 따라 다음 토큰의 확률이 달라진다</h2>
+          <div class="prediction-example">
+            <h3>예시 1. “회의가 취소되어서 시간을…”</h3>
+            <div class="probability best"><span>확보했다</span><div class="meter"><i style="--w:72%"></i></div><span>72%</span></div>
+            <div class="probability"><span>먹었다</span><div class="meter"><i style="--w:12%"></i></div><span>12%</span></div>
+            <div class="probability"><span>달렸다</span><div class="meter"><i style="--w:7%"></i></div><span>7%</span></div>
+          </div>
+          <div class="prediction-example fragment">
+            <h3>예시 2. “뜨거운 냄비를 맨손으로 잡으면…”</h3>
+            <div class="probability best"><span>위험하다</span><div class="meter"><i style="--w:67%"></i></div><span>67%</span></div>
+            <div class="probability"><span>화상</span><div class="meter"><i style="--w:21%"></i></div><span>21%</span></div>
+            <div class="probability"><span>즐겁다</span><div class="meter"><i style="--w:2%"></i></div><span>2%</span></div>
+          </div>
+          <div class="quote fragment">AI는 인간처럼 “옳고 그름”을 느끼지 않는다.<br />맥락상 가장 그럴듯한 다음 토큰을 계산한다.</div>
+          <p class="fragment">가치 판단처럼 보이는 답변도 학습 데이터, 후속 정렬, 시스템 정책, 현재 컨텍스트의 결과다.</p>
+        </div>
+      </section>
+
+      <section class="slide" data-title="일반 능력의 한계">
+        <div class="content">
+          <div class="kicker">GENERAL ≠ SPECIFIC</div>
+          <h2>똑똑해 보여도, 모르는 맥락은 채울 수 없다</h2>
+          <div class="grid cols-2">
+            <article class="card fragment">
+              <h3>“우리 회사 시스템을 개선해줘”</h3>
+              <p>아키텍처, 트래픽, 장애 이력, 비용, 규제, 목표가 없다. AI는 일반론만 말하거나 추측한다.</p>
+            </article>
+            <article class="card fragment">
+              <h3>“살 만한 주식 추천해줘”</h3>
+              <p>AI는 사용자가 <strong>어느 나라 주식</strong>을 원하는지, <strong>언제 얼마를 매수</strong>할지, <strong>단기·중기·장기</strong> 중 얼마나 보유할지, 손실을 얼마나 감수할지 모른다.</p>
+              <p>표·보고서·종목 목록 등 <strong>원하는 결과 양식</strong>도 없으므로, 결국 일반적인 수준의 답만 줄 수 있다.</p>
+            </article>
+          </div>
+          <p class="lead fragment">모델의 한계만 탓하기 전에, <strong>업무의 정답지를 정의했는지</strong> 확인해야 한다.</p>
+        </div>
+      </section>
+
+      <section class="slide" data-title="결국 컨텍스트">
+        <div class="content">
+          <div class="kicker">CONTEXT</div>
+          <h2>결국 중요한 것은 “맥락”이다</h2>
+          <p>한국어를 흔히 고맥락 언어라고 부르지만, 개인·조직·상황 차이가 크다. AI에게는 암묵적 맥락을 기대하지 않는 편이 안전하다.</p>
+          <div class="grid cols-2">
+            <article class="card fragment">
+              <span class="tag">한국어 해프닝</span>
+              <h3>“한번 검토해 주세요.”</h3>
+              <p>사람 사이에서는 “문제점을 찾아 수정안까지 달라”는 뜻일 수 있다. AI는 요약만 하고 끝낼 수 있다.</p>
+            </article>
+            <article class="card fragment">
+              <span class="tag">영어 해프닝</span>
+              <h3>“That might be difficult.”</h3>
+              <p>완곡한 거절 의도였지만 상대는 “어렵지만 가능”으로 받아들여 계속 진행할 수 있다.</p>
+            </article>
+          </div>
+          <div class="quote fragment">암묵지를 명시지로 바꾸는 일이 곧 프롬프트 설계다.</div>
+        </div>
+      </section>
+
+      <section class="slide" data-title="질문을 업무 명세로">
+        <div class="content">
+          <div class="kicker">BEFORE / AFTER</div>
+          <h2>질문이 아니라 업무 명세를 전달한다</h2>
+          <div class="grid cols-2">
+            <article class="card bad">
+              <span class="tag">잘못된 질의</span>
+              <h3>“우리 서비스 장애 원인 분석해줘.”</h3>
+              <p>대상, 증거, 목표, 제약, 결과 형식이 없다.</p>
+            </article>
+            <article class="card good fragment">
+              <span class="tag">개선된 질의</span>
+              <p><b>역할:</b> 당신은 SRE 리드입니다.</p>
+              <p><b>목표:</b> 09:00~09:20 결제 오류 급증의 가장 유력한 원인 3개를 찾으세요.</p>
+              <p><b>근거:</b> 첨부 로그와 배포 이력만 사용하고, 모르면 “근거 부족”이라고 쓰세요.</p>
+              <p><b>규칙:</b> 각 가설에 근거·반증 방법·위험도를 붙이세요.</p>
+              <p><b>출력:</b> 표 + 즉시 조치 3단계. 감사합니다.</p>
+            </article>
+          </div>
+          <p class="fragment">칭찬과 감사는 대화를 부드럽게 할 수 있지만, 품질을 결정하는 핵심은 <strong>역할·목표·맥락·제약·검증 기준</strong>이다.</p>
+        </div>
+      </section>
+
+      <section class="slide" data-title="답변 품질의 차이">
+        <div class="content">
+          <div class="kicker">OUTPUT COMPARISON</div>
+          <h2>같은 모델, 다른 입력, 다른 결과</h2>
+          <div class="grid cols-2">
+            <article class="card bad">
+              <span class="tag">모호한 질문의 답</span>
+              <div class="answer">장애 원인은 네트워크 문제, 서버 과부하, 데이터베이스 오류 등일 수 있습니다. 로그를 확인하고 모니터링 지표를 살펴보세요.</div>
+              <p>그럴듯하지만 바로 행동하기 어렵다.</p>
+            </article>
+            <article class="card good fragment">
+              <span class="tag">명세된 질문의 답</span>
+              <div class="answer">1순위: 08:57 결제 API v2.14 배포<br />근거: 배포 3분 뒤 5xx가 0.4%→18.2% 증가<br />반증: 이전 버전으로 5% 카나리 롤백 후 오류율 비교<br />위험도: 높음<br /><br />즉시 조치: 신규 트래픽 차단 → 카나리 롤백 → 결제 재처리 큐 보존</div>
+              <p>근거와 다음 행동을 바로 검증할 수 있다.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide dark" data-title="MCP는 왜 쓰나">
+        <div class="content">
+          <div class="kicker">MODEL CONTEXT PROTOCOL</div>
+          <h2>MCP: AI와 외부 세계 사이의<br />표준화된 작업 계약</h2>
+          <div class="mcp-map">
+            <div class="card"><h3>AI 애플리케이션</h3><p>사용자 의도를 해석하고 어떤 기능을 쓸지 결정</p></div>
+            <div class="mcp-center">MCP</div>
+            <div class="card"><h3>외부 시스템</h3><p>파일, DB, GitHub, 사내 API, 브라우저</p></div>
+          </div>
+          <div class="grid cols-2">
+            <article class="card fragment"><h3>작업 경계와 보안</h3><p>허용된 도구, 입력 스키마, 권한, 승인 흐름으로 “무엇을 할 수 있는지”를 제한한다.</p></article>
+            <article class="card fragment"><h3>능력 확장과 표준화</h3><p>모델 혼자 못 하는 읽기·검색·실행을 외부 서버가 제공하고, 클라이언트가 공통 방식으로 발견한다.</p></article>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-title="MCP가 없다면">
+        <div class="content">
+          <div class="kicker">권한·경계·비밀의 실패</div>
+          <h2>MCP 같은 작업 계약이 없다면?</h2>
+          <div class="fragment">
+            <div class="dialogue owner"><b>양반:</b> 돌쇠야, 금고에서 돈 좀 꺼내 오거라.</div>
+            <div class="dialogue worker"><b>돌쇠:</b> 비밀번호가 필요합니다.</div>
+            <div class="dialogue owner"><b>양반:</b> 1234.</div>
+            <p>비밀을 손등에 적음 → <strong>자격 증명 노출</strong></p>
+          </div>
+          <div class="fragment">
+            <div class="dialogue worker"><b>돌쇠:</b> 금고가 더러워 닦고, 불안해 보여 돈 일부는 뒤뜰에 묻었습니다.</div>
+            <div class="dialogue owner"><b>양반:</b> 그걸 왜 네 마음대로?</div>
+            <p>청소 권한을 자산 이동까지 확대 → <strong>최소 권한·작업 범위 실패</strong></p>
+          </div>
+          <div class="fragment">
+            <div class="dialogue owner"><b>개발자:</b> D 드라이브를 포맷해.</div>
+            <div class="dialogue worker"><b>AI:</b> C 드라이브에도 불필요한 파일이 보여 함께 포맷합니다.</div>
+            <p>파괴적 작업에 승인 단계 없음 → <strong>명시적 동의·감사 로그 실패</strong></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-title="MCP 종류와 설정">
+        <div class="content">
+          <div class="kicker">MCP PRACTICAL GUIDE</div>
+          <h2>MCP는 기능, 연결 방식, 신뢰 경계로 본다</h2>
+          <div class="grid cols-3">
+            <article class="card">
+              <h3>서버 기능</h3>
+              <ul class="small"><li><b>Tools</b>: 실행 가능한 작업</li><li><b>Resources</b>: 읽을 컨텍스트</li><li><b>Prompts</b>: 재사용 지시 템플릿</li></ul>
+            </article>
+            <article class="card">
+              <h3>연결 방식</h3>
+              <ul class="small"><li><b>stdio</b>: 로컬 프로세스</li><li><b>Streamable HTTP</b>: 원격 서버</li><li>원격 연결은 인증·TLS·승인 정책 필요</li></ul>
+            </article>
+            <article class="card">
+              <h3>설정 순서</h3>
+              <ul class="small"><li>서버 출처와 코드 검토</li><li>클라이언트에 command 또는 URL 등록</li><li>최소 권한 환경 변수·경로 설정</li><li>Inspector로 스키마와 호출 시험</li></ul>
+            </article>
+          </div>
+          <pre>{
+  "mcpServers": {
+    "project-files": {
+      "command": "npx",
+      "args": ["-y", "@example/files-server", "/allowed/project"]
+    }
+  }
+}</pre>
+          <p style="font-size:15px">설정 키는 클라이언트마다 다르다. 공식 문서: modelcontextprotocol.io/docs · Inspector: modelcontextprotocol.io/docs/tools</p>
+        </div>
+      </section>
+
+      <section class="slide" data-title="세 가지 엔지니어링">
+        <div class="content">
+          <div class="kicker">PROMPT · CONTEXT · HARNESS</div>
+          <h2>좋은 지시, 좋은 재료, 좋은 실행 환경</h2>
+          <div class="grid cols-3">
+            <article class="card engineering-card fragment" data-order="1">
+              <span class="tag">프롬프트 엔지니어링</span>
+              <h3>무엇을 어떻게 할지</h3>
+              <p>역할, 목표, 제약, 절차, 출력 형식을 명확히 설계한다.</p>
+              <div class="example-box">“SRE 리드로서 원인 3개를 근거·반증 방법·위험도 표로 작성하라.”</div>
+            </article>
+            <article class="card engineering-card fragment" data-order="2">
+              <span class="tag">컨텍스트 엔지니어링</span>
+              <h3>판단에 무엇을 쓸지</h3>
+              <p>필요한 순간에 로그, 코드, 정책, 대화 이력, 도구 결과를 선별해 제공한다.</p>
+              <div class="example-box">09:00~09:20 로그 + 08:57 배포 이력 + 결제 API 구조 + 장애 대응 정책</div>
+            </article>
+            <article class="card engineering-card fragment" data-order="3">
+              <span class="tag">하네스 엔지니어링</span>
+              <h3>어떻게 실행·검증할지</h3>
+              <p>도구 권한, 반복 루프, 승인, 테스트, 관찰 로그, 실패 복구를 코드로 통제한다.</p>
+              <div class="example-box">로그 검색 → 가설 작성 → 테스트 실행 → 실패 시 재시도 → 롤백 전 사람 승인 → 결과 기록</div>
+            </article>
+          </div>
+          <div class="quote fragment">프롬프트는 <strong>업무 지시서</strong>, 컨텍스트는 <strong>업무 자료</strong>, 하네스는 <strong>업무 시스템</strong>이다.</div>
+        </div>
+      </section>
+    </main>
+
+    <div class="click-hint">화면 클릭 · Space/→ 다음 · ← 뒤로 · M 목차</div>
+    <div class="controls">
+      <button type="button" onclick="prev()" aria-label="뒤로 가기">←</button>
+      <span class="counter" id="counter"></span>
+      <button type="button" onclick="next()" aria-label="다음">→</button>
+    </div>
+    <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+
+    <script>
+      const slides = [...document.querySelectorAll(".slide")];
+      const navList = document.getElementById("navList");
+      const counter = document.getElementById("counter");
+      const progressBar = document.getElementById("progressBar");
+      let current = 0;
+
+      const navButtons = slides.map((slide, index) => {
+        const item = document.createElement("li");
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "nav-item";
+        button.innerHTML = `<span>${String(index + 1).padStart(2, "0")}</span><span>${slide.dataset.title}</span>`;
+        button.addEventListener("click", () => {
+          show(index);
+          document.body.classList.remove("sidebar-open");
+        });
+        item.appendChild(button);
+        navList.appendChild(item);
+        return button;
+      });
+
+      function directFragments(slide) {
+        const fragments = [...slide.querySelectorAll(".fragment")];
+        const topLevel = fragments.filter((fragment) => {
+          return !fragment.parentElement.closest(".fragment");
+        });
+        const nested = fragments.filter((fragment) => !topLevel.includes(fragment));
+        return [...topLevel, ...nested];
+      }
+
+      function show(index) {
+        current = Math.max(0, Math.min(index, slides.length - 1));
+        slides.forEach((slide, i) => slide.classList.toggle("active", i === current));
+        navButtons.forEach((button, i) => button.classList.toggle("active", i === current));
+        counter.textContent = `${current + 1} / ${slides.length}`;
+        progressBar.style.width = `${((current + 1) / slides.length) * 100}%`;
+        history.replaceState(null, "", `#slide-${current + 1}`);
+        navButtons[current].scrollIntoView({ block: "nearest" });
+      }
+
+      function revealNext() {
+        const hidden = directFragments(slides[current]).find((fragment) => !fragment.classList.contains("visible"));
+        if (!hidden) return false;
+        hidden.classList.add("visible");
+        return true;
+      }
+
+      function hideLast() {
+        const visible = directFragments(slides[current]).filter((fragment) => fragment.classList.contains("visible"));
+        if (!visible.length) return false;
+        visible[visible.length - 1].classList.remove("visible");
+        return true;
+      }
+
+      function next() {
+        if (revealNext()) return;
+        if (current < slides.length - 1) show(current + 1);
+      }
+
+      function prev() {
+        if (hideLast()) return;
+        if (current > 0) show(current - 1);
+      }
+
+      function toggleSidebar() {
+        document.body.classList.toggle("sidebar-open");
+      }
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowRight" || event.key === " " || event.key === "PageDown") {
+          event.preventDefault();
+          next();
+        } else if (event.key === "ArrowLeft" || event.key === "PageUp" || event.key === "Backspace") {
+          event.preventDefault();
+          prev();
+        } else if (event.key.toLowerCase() === "m") {
+          toggleSidebar();
+        } else if (event.key === "Escape") {
+          document.body.classList.remove("sidebar-open");
+        }
+      });
+
+      document.querySelector(".deck").addEventListener("click", (event) => {
+        if (event.target.closest("button, a")) return;
+        next();
+      });
+
+      const hashMatch = location.hash.match(/slide-(\d+)/);
+      show(hashMatch ? Number(hashMatch[1]) - 1 : 0);
+    </script>
+  </body>
+</html>
