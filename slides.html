@@ -3,1014 +3,443 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>AI를 통한 자동화: 지시, 맥락, 그리고 MCP</title>
+    <title>01 지시하기: AI에게 일 잘 시키는 법</title>
+    <link rel="stylesheet" href="assets/deck.css" />
     <style>
-      @font-face {
-        font-family: "Pretendard Variable";
-        src: url("PretendardVariable.woff2") format("woff2-variations");
-        font-weight: 45 920;
-        font-display: swap;
-      }
-
-      :root {
-        --navy: #101820;
-        --navy-2: #192632;
-        --paper: #f7f4ed;
-        --white: #fff;
-        --ink: #182028;
-        --muted: #66717a;
-        --teal: #087f8c;
-        --teal-dark: #075f69;
-        --red: #c5483d;
-        --gold: #d7a52b;
-        --green: #287a54;
-        --line: #d8d7d1;
-        --sidebar: 276px;
-      }
-
-      * { box-sizing: border-box; }
-      html, body { width: 100%; height: 100%; margin: 0; }
-      body {
-        overflow: hidden;
-        color: var(--ink);
-        background: var(--navy);
-        font-family: "Pretendard Variable", Pretendard, system-ui, sans-serif;
-        word-break: keep-all;
-      }
-      button { font: inherit; }
-      strong, .accent { color: var(--red); }
-
-      .deck { position: relative; width: 100vw; height: 100vh; }
-      .slide {
-        position: absolute;
-        inset: 0;
-        display: none;
-        overflow: auto;
-        padding: clamp(34px, 5vw, 72px);
-        background:
-          linear-gradient(90deg, rgba(8,127,140,.035) 1px, transparent 1px),
-          linear-gradient(rgba(8,127,140,.035) 1px, transparent 1px),
-          var(--paper);
-        background-size: 40px 40px;
-      }
-      .slide.active {
-        display: grid;
-        align-content: center;
-      }
-      body.sidebar-open .slide { left: var(--sidebar); }
-      .slide.dark {
-        color: var(--white);
-        background:
-          radial-gradient(circle at 82% 20%, rgba(8,127,140,.45), transparent 32%),
-          linear-gradient(135deg, var(--navy), var(--navy-2));
-      }
-      .slide.image-slide { background: #e9e2d2; }
-      .content { width: min(1120px, 100%); margin: 0 auto; }
-      .content.narrow { width: min(940px, 100%); }
-      .kicker {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 18px;
-        color: var(--teal-dark);
-        font-size: clamp(15px, 1.4vw, 19px);
-        font-weight: 850;
-        letter-spacing: .05em;
-      }
-      .kicker::before {
-        content: "";
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: var(--red);
-      }
-      .dark .kicker { color: #bceaf0; }
-      h1, h2, h3, p { margin-top: 0; }
-      h1 {
-        margin-bottom: 24px;
-        font-size: clamp(48px, 7vw, 94px);
-        line-height: 1.06;
-        letter-spacing: -.035em;
-      }
-      h2 {
-        margin-bottom: 24px;
-        font-size: clamp(36px, 4.8vw, 66px);
-        line-height: 1.12;
-        letter-spacing: -.025em;
-      }
-      h3 { margin-bottom: 12px; font-size: clamp(22px, 2.2vw, 31px); }
-      p, li {
-        font-size: clamp(20px, 2vw, 28px);
-        line-height: 1.48;
-      }
-      p { color: var(--muted); }
-      .dark p { color: #d7e2e8; }
-      .lead { font-size: clamp(25px, 2.8vw, 38px); }
-      .huge { font-size: clamp(40px, 6vw, 82px); font-weight: 900; line-height: 1.12; }
-      .center { text-align: center; }
-      .center p { margin-left: auto; margin-right: auto; }
-      .quote {
-        margin: 28px 0;
-        padding: 25px 30px;
-        border-left: 8px solid var(--red);
-        color: var(--ink);
-        background: var(--white);
-        box-shadow: 0 16px 40px rgba(16,24,32,.08);
-        font-size: clamp(27px, 3.4vw, 48px);
-        font-weight: 850;
-        line-height: 1.35;
-      }
-      .dark .quote { color: var(--white); background: rgba(255,255,255,.08); }
-
-      .grid { display: grid; gap: 18px; margin-top: 28px; }
-      .cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-      .card {
-        padding: 22px;
-        border: 1px solid var(--line);
-        border-radius: 12px;
-        background: rgba(255,255,255,.94);
-        box-shadow: 0 12px 28px rgba(16,24,32,.07);
-      }
-      .card p, .card li { font-size: clamp(17px, 1.45vw, 21px); }
-      .card p:last-child { margin-bottom: 0; }
-      .dark .card { color: var(--ink); }
-      .dark .card h3 { color: var(--ink); }
-      .dark .card p, .dark .card li { color: var(--muted); }
-      .bad { border-top: 7px solid var(--red); }
-      .good { border-top: 7px solid var(--green); }
-      .tag {
-        display: inline-block;
-        margin-bottom: 12px;
-        padding: 5px 10px;
-        border-radius: 999px;
-        color: var(--white);
-        background: var(--teal);
-        font-size: 14px;
-        font-weight: 850;
-      }
-      .bad .tag { background: var(--red); }
-      .good .tag { background: var(--green); }
-      ul { margin: 18px 0 0; padding-left: 30px; }
-      li { margin: 9px 0; }
-      .small li { font-size: clamp(16px, 1.35vw, 20px); }
-
-      .fragment {
-        opacity: 0;
-        transform: translateY(16px);
-        transition: opacity .22s ease, transform .22s ease;
-        pointer-events: none;
-      }
-      .fragment.visible {
-        opacity: 1;
-        transform: none;
-        pointer-events: auto;
-      }
-      .reveal-line {
-        margin: 10px 0;
-        padding: 12px 16px;
-        border-left: 4px solid var(--teal);
-        color: var(--ink);
-        background: rgba(255,255,255,.8);
-        font-size: clamp(17px, 1.55vw, 22px);
-        line-height: 1.42;
-      }
-      .annotation {
-        display: inline-block;
-        margin-left: 8px;
-        padding: 3px 9px;
-        border-radius: 999px;
-        color: #fff;
-        background: var(--red);
-        font-size: .72em;
-        font-weight: 850;
-      }
-
-      .hero-image {
-        display: block;
-        max-width: min(76vw, 720px);
-        max-height: 76vh;
-        margin: 0 auto;
-        object-fit: contain;
-        filter: drop-shadow(0 20px 28px rgba(16,24,32,.18));
-      }
-      .artwork-image {
-        width: auto;
-        max-width: min(92vw, 940px);
-        max-height: 86vh;
-      }
-      .image-slide {
-        padding-top: clamp(16px, 2vw, 28px);
-        padding-bottom: clamp(16px, 2vw, 28px);
-      }
-      .wide-image { max-width: min(88vw, 940px); max-height: 58vh; }
-      .image-caption {
-        margin-top: 14px;
-        color: var(--muted);
-        text-align: center;
-        font-size: 16px;
-      }
-      .split {
-        display: grid;
-        grid-template-columns: minmax(0, 1.1fr) minmax(300px, .8fr);
-        gap: 38px;
-        align-items: center;
-      }
-
-      .timeline {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 20px;
-        margin-top: 38px;
-      }
-      .era {
-        position: relative;
-        min-height: 260px;
-        padding: 26px;
-        border-radius: 14px;
-        color: #fff;
-        background: var(--navy-2);
-      }
-      .era:nth-child(2) { background: var(--teal-dark); }
-      .era:nth-child(3) { background: var(--red); }
-      .era b { display: block; margin-bottom: 20px; color: #fff; font-size: 42px; }
-      .era p { color: #e7eff2; font-size: 20px; }
-
-      pre {
-        margin: 18px 0 0;
-        padding: 20px;
-        overflow: auto;
-        border-radius: 10px;
-        color: #e8f2f5;
-        background: #14212b;
-        font: 600 clamp(15px, 1.35vw, 20px)/1.55 ui-monospace, SFMono-Regular, Consolas, monospace;
-        white-space: pre-wrap;
-      }
-      .token-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0; }
-      .token {
-        padding: 9px 12px;
-        border-radius: 8px;
-        color: var(--teal-dark);
-        background: #d8eef0;
-        font: 800 18px ui-monospace, monospace;
-      }
-      .token small { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; }
-      .weight-chart {
-        display: flex;
-        align-items: end;
-        gap: 15px;
-        height: 185px;
-        padding: 18px 18px 0;
-        border-left: 2px solid var(--ink);
-        border-bottom: 2px solid var(--ink);
-      }
-      .bar-col {
-        position: relative;
-        flex: 1;
-        min-width: 42px;
-        height: var(--h);
-        border-radius: 6px 6px 0 0;
-        background: var(--teal);
-      }
-      .bar-col.best { background: var(--red); }
-      .bar-col::before {
-        content: attr(data-score);
-        position: absolute;
-        top: -28px;
-        left: 50%;
-        transform: translateX(-50%);
-        color: var(--ink);
-        font-size: 16px;
-        font-weight: 900;
-      }
-      .bar-col span {
-        position: absolute;
-        bottom: -28px;
-        left: 50%;
-        transform: translateX(-50%);
-        font-size: 14px;
-        font-weight: 800;
-        white-space: nowrap;
-      }
-      .flow {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 12px;
-        margin: 30px 0;
-        flex-wrap: wrap;
-      }
-      .node {
-        padding: 17px 20px;
-        border: 2px solid var(--teal);
-        border-radius: 10px;
-        color: var(--ink);
-        background: #fff;
-        font-size: clamp(18px, 1.6vw, 23px);
-        font-weight: 850;
-        text-align: center;
-      }
-      .arrow { color: var(--red); font-size: 32px; font-weight: 900; }
-      .probability {
-        display: grid;
-        grid-template-columns: 160px 1fr 72px;
-        gap: 12px;
-        align-items: center;
-        margin: 13px 0;
-        font-size: 20px;
-        font-weight: 800;
-      }
-      .meter { height: 18px; border-radius: 999px; background: #ddd; overflow: hidden; }
-      .meter i { display: block; width: var(--w); height: 100%; background: var(--teal); }
-      .probability.best .meter i { background: var(--red); }
-      .prediction-example {
-        padding: 18px 22px;
-        border: 1px solid var(--line);
-        border-radius: 12px;
-        background: rgba(255,255,255,.82);
-      }
-      .prediction-example + .prediction-example { margin-top: 18px; }
-      .prediction-example h3 { font-size: clamp(20px, 1.9vw, 27px); }
-      .prediction-example .probability {
-        grid-template-columns: 130px 1fr 62px;
-        margin: 9px 0;
-        font-size: 17px;
-      }
-      .engineering-card {
-        position: relative;
-        overflow: hidden;
-      }
-      .engineering-card::after {
-        content: attr(data-order);
-        position: absolute;
-        top: -20px;
-        right: 8px;
-        color: rgba(8,127,140,.08);
-        font-size: 100px;
-        font-weight: 920;
-      }
-      .engineering-card p { position: relative; z-index: 1; }
-      .example-box {
-        position: relative;
-        z-index: 1;
-        margin-top: 14px;
-        padding: 13px;
-        border-radius: 8px;
-        color: #dce8ed;
-        background: var(--navy-2);
-        font-size: clamp(14px, 1.2vw, 18px);
-        line-height: 1.48;
-      }
-
-      .dialogue {
-        margin: 12px 0;
-        padding: 13px 17px;
-        border-radius: 12px 12px 12px 2px;
-        background: #fff;
-        font-size: clamp(17px, 1.5vw, 22px);
-        line-height: 1.45;
-      }
-      .dialogue.owner { margin-left: 8%; border-left: 5px solid var(--red); }
-      .dialogue.worker { margin-right: 8%; border-left: 5px solid var(--teal); }
-      .answer {
-        margin-top: 15px;
-        padding: 18px;
-        border-radius: 10px;
-        color: #dce8ed;
-        background: var(--navy-2);
-        font-size: clamp(15px, 1.25vw, 19px);
-        line-height: 1.52;
-      }
-      .mcp-map {
-        display: grid;
-        grid-template-columns: .8fr 1.2fr .8fr;
-        gap: 16px;
-        align-items: center;
-        margin-top: 28px;
-      }
-      .mcp-center {
-        padding: 28px;
-        border-radius: 50%;
-        color: #fff;
-        background: var(--teal);
-        font-size: 34px;
-        font-weight: 900;
-        text-align: center;
-      }
-
-      .sidebar {
-        position: fixed;
-        inset: 0 auto 0 0;
-        z-index: 50;
-        display: flex;
-        flex-direction: column;
-        width: var(--sidebar);
-        color: #dbe6eb;
-        background: #0b1218;
-        transform: translateX(-100%);
-        transition: transform .2s ease;
-      }
-      body.sidebar-open .sidebar { transform: none; }
-      .sidebar-head {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 16px;
-        border-bottom: 1px solid rgba(255,255,255,.12);
-      }
-      .sidebar-head strong { flex: 1; color: #fff; }
-      .sidebar button, .controls button, .menu-button {
-        border: 1px solid rgba(255,255,255,.2);
-        color: #fff;
-        background: rgba(255,255,255,.08);
-        cursor: pointer;
-      }
-      .close-menu { width: 34px; height: 34px; border-radius: 6px; }
-      .nav-list { margin: 0; padding: 8px; overflow-y: auto; list-style: none; }
-      .nav-list li { margin: 0; }
-      .nav-item {
-        display: grid;
-        grid-template-columns: 25px 1fr;
-        gap: 7px;
-        width: 100%;
-        padding: 9px;
-        border: 0 !important;
-        border-radius: 7px;
-        color: #b8c7cf !important;
-        background: transparent !important;
-        text-align: left;
-        font-size: 13px;
-        line-height: 1.3;
-      }
-      .nav-item.active { color: #fff !important; background: var(--teal) !important; }
-      .menu-button {
-        position: fixed;
-        top: 16px;
-        left: 16px;
-        z-index: 45;
-        width: 44px;
-        height: 44px;
-        border-radius: 8px;
-        background: rgba(11,18,24,.9);
-        font-size: 20px;
-      }
-      body.sidebar-open .menu-button { display: none; }
-      .controls {
-        position: fixed;
-        right: 18px;
-        bottom: 18px;
-        z-index: 45;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px;
-        border-radius: 9px;
-        color: #fff;
-        background: rgba(11,18,24,.9);
-      }
-      .controls button { width: 40px; height: 38px; border-radius: 6px; font-weight: 900; }
-      .counter { min-width: 68px; text-align: center; font-size: 13px; }
-      .frag-dots { display: flex; align-items: center; gap: 5px; }
-      .frag-dots:empty { display: none; }
-      .frag-dots i {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        border: 1px solid rgba(255,255,255,.55);
-        background: transparent;
-      }
-      .frag-dots i.done { border-color: var(--red); background: var(--red); }
-      .progress { position: fixed; bottom: 0; left: 0; z-index: 44; width: 100%; height: 5px; background: rgba(255,255,255,.2); }
-      .progress-bar { height: 100%; width: 0; background: var(--red); transition: width .2s ease; }
-      .click-hint {
-        position: fixed;
-        left: 50%;
-        bottom: 23px;
-        z-index: 42;
-        transform: translateX(-50%);
-        color: #71808a;
-        font-size: 13px;
-      }
-
+      /* 이 덱의 한 장에서만 쓰는 모형 스타일 */
+      .grid .prediction-example + .prediction-example { margin-top: 0; }
+      .mock.layered { display: grid; width: min(860px, 100%); margin: 6px auto 0; }
+      .mock.layered > * { grid-area: 1 / 1; }
+      .mock.layered .behind { justify-self: start; width: 56%; }
+      .mock.layered .tilt { transform: rotate(-3deg); background: #fbf7ea; }
+      .mock.layered .front { position: relative; z-index: 1; justify-self: end; align-self: end; width: 62%; margin-top: 110px; }
+      .dolsoe-big { width: 220px; height: 220px; justify-self: center; }
+      .next-up { display: flex; align-items: center; gap: 14px; margin-top: 18px; }
+      .next-up .icon { width: 40px; height: 40px; color: var(--gold); }
+      .icon-card.compact { padding: 14px 12px; }
+      .icon-card.compact .icon { width: 34px; height: 34px; }
       @media (max-width: 900px) {
-        body.sidebar-open .slide { left: 0; }
-        .cols-2, .cols-3, .timeline, .split, .mcp-map { grid-template-columns: 1fr; }
-        .slide { padding: 70px 24px 85px; }
-        .slide.active { align-content: start; }
-        .timeline .era { min-height: auto; }
-        .click-hint { display: none; }
+        .mock.layered > * { grid-area: auto; }
+        .mock.layered .behind, .mock.layered .front { width: 100%; margin-top: 12px; }
+        .dolsoe-big { width: 120px; height: 120px; }
       }
     </style>
   </head>
   <body>
-    <button class="menu-button" type="button" aria-label="목차 열기" onclick="toggleSidebar()">☰</button>
-    <nav class="sidebar" aria-label="슬라이드 목차">
-      <div class="sidebar-head">
-        <strong>AI 자동화 세미나</strong>
-        <button class="close-menu" type="button" aria-label="목차 닫기" onclick="toggleSidebar()">«</button>
-      </div>
-      <ul class="nav-list" id="navList"></ul>
-    </nav>
-
-    <main class="deck">
-      <section class="slide dark active" data-title="AI를 통한 자동화?">
+    <main class="deck" data-deck-title="01 지시하기">
+      <section class="slide dark" data-title="새로운 걸까?">
+        <img class="cover-bg" src="assets/김홍도_타작.png" alt="" />
         <div class="content">
-          <div class="kicker">AI AUTOMATION</div>
-          <h1>AI를 통한 자동화?</h1>
-          <p class="lead">새롭게 등장한 개념이 아니다.</p>
-          <p class="lead fragment">AI가 없던 시절에도 사람들은 업무 자동화를 해왔다.</p>
-          <p class="huge fragment">어떻게? <span class="accent">→</span></p>
+          <div class="kicker">SEMINAR 01 지시하기</div>
+          <h1>AI를 통한 자동화, 정말 새로운 걸까?</h1>
+          <p class="lead fragment">AI가 없던 시절에도 사람들은 일을 자동화해 왔다.</p>
+          <p class="huge fragment">어떻게?</p>
         </div>
+        <aside class="notes">
+          <p>오늘 30분 동안 이야기할 것은 하나입니다. AI에게 일을 잘 시키는 법이요.</p>
+          <p>그런데 일을 맡기는 건 AI가 생기기 훨씬 전부터 사람들이 해 오던 일입니다. 옛 그림 한 장으로 시작해 볼게요.</p>
+        </aside>
       </section>
 
-      <section class="slide image-slide" data-title="자동화의 오래된 풍경">
+      <section class="slide image-slide" data-title="조선의 일터">
         <div class="content center">
-          <img class="hero-image artwork-image" src="assets/김홍도_타작.png" alt="김홍도의 타작도" />
-          <p class="image-caption">김홍도, 풍속도첩 중 「타작」</p>
+          <div class="image-swap">
+            <img class="hero-image artwork-image" src="assets/김홍도_타작.png" alt="김홍도의 타작" />
+            <img class="hero-image artwork-image fragment" src="assets/김홍도_타작_관리감독.png" alt="일하는 사람과 지시하고 확인하는 사람을 표시한 타작" />
+          </div>
+          <p class="image-caption">김홍도, 「타작」</p>
         </div>
-      </section>
-
-      <section class="slide image-slide" data-title="지시와 관리 감독">
-        <div class="content center">
-          <img class="hero-image artwork-image" src="assets/김홍도_타작_관리감독.png" alt="타작 장면의 업무 지시와 관리 감독을 강조한 그림" />
-          <p class="image-caption">일을 나누고, 지시하고, 확인하는 구조</p>
-        </div>
-      </section>
-
-      <section class="slide dark" data-title="사람에게 지시, AI에게 지시">
-        <div class="content center">
-          <div class="kicker">같은 문제, 다른 수행자</div>
-          <p class="huge">사람이 사람에게<br />업무 지시하는 것</p>
-          <p class="lead">=</p>
-          <p class="huge">사람이 AI에게<br />업무 지시하는 것</p>
-        </div>
+        <aside class="notes">
+          <p>김홍도의 타작입니다. 먼저 누가 일하고 있는지 보세요.</p>
+          <p>클릭하면 표시가 나옵니다. 일하는 사람들 뒤에 비스듬히 누워 지켜보는 사람이 있죠. 일을 나누고, 지시하고, 확인하는 구조가 이미 있었습니다.</p>
+        </aside>
       </section>
 
       <section class="slide" data-title="돌쇠의 업무 명세">
         <div class="content">
-          <div class="kicker">업무 위임 시뮬레이션</div>
           <h2>새로 온 돌쇠에게 청소를 맡긴다면</h2>
-          <p>집주인 양반이 노비 시장에서 노비를 하나 데려왔다.</p>
-          <div id="dolsoeScript">
-            <div class="reveal-line fragment">“이제부터 넌 이 집에서 돌쇠다.” <span class="annotation fragment">Agent 생성</span></div>
-            <div class="reveal-line fragment">“전 주인이 말하길 넌 빗자루질을 잘한다고 들었다.”</div>
-            <div class="reveal-line fragment">“네 업무는 매일 아침 마당을 쓸고 집을 청소하는 것이다.” <span class="annotation fragment">Persona · 자아정체성</span></div>
-            <div class="reveal-line fragment">“오늘 처음 왔으니 혼선이 없게 설명하도록 하지.”</div>
-            <div class="reveal-line fragment">“집 먼지를 마당으로 쓸어낸 다음 마당 청소를 하거라.”</div>
-            <div class="reveal-line fragment">“비 오는 날에는 물걸레질 말고 마른걸레질만 하거라.”</div>
-            <div class="reveal-line fragment">“끝나면 장부에 상태, 작업, 결과를 기록하거라.” <span class="annotation fragment">Harness · 실행/관찰/기록</span></div>
-            <div class="reveal-line fragment">“물은 집 뒤 냇가에서 퍼오면 된다.”</div>
-            <div class="reveal-line fragment">“마른 걸레는 창고지기 박씨에게 받아 쓰거라.”</div>
-            <div class="reveal-line fragment">“그 외에 모르는 것은 박씨에게 물어보거라.” <span class="annotation fragment">RAG · 외부 지식 조회</span></div>
+          <div class="split">
+            <div class="scene">
+              <div class="say fragment"><img class="avatar" src="assets/people/yangban.png" alt="양반" /><div class="bubble">“이제부터 넌 이 집의 돌쇠다.”</div></div>
+              <div class="say fragment"><img class="avatar" src="assets/people/yangban.png" alt="양반" /><div class="bubble">“네 일은 매일 아침 마당을 쓸고 집을 청소하는 것이다.” <span class="annotation fragment">해야 할 일</span></div></div>
+              <div class="say fragment"><img class="avatar" src="assets/people/yangban.png" alt="양반" /><div class="bubble">“집 먼지를 마당으로 쓸어낸 다음 마당을 쓸어라.”</div></div>
+              <div class="say fragment"><img class="avatar" src="assets/people/yangban.png" alt="양반" /><div class="bubble">“비 오는 날에는 물걸레 말고 마른걸레만 써라.” <span class="annotation fragment">규칙</span></div></div>
+              <div class="say fragment"><img class="avatar" src="assets/people/yangban.png" alt="양반" /><div class="bubble">“끝나면 장부에 무엇을 어떻게 했는지 적어라.” <span class="annotation fragment">기록</span></div></div>
+              <div class="say fragment"><img class="avatar" src="assets/people/yangban.png" alt="양반" /><div class="bubble">“걸레는 창고지기 박씨에게 받아 쓰고, 모르는 건 박씨에게 물어라.” <span class="annotation fragment">모르면 물어볼 곳</span></div></div>
+            </div>
+            <img class="avatar dolsoe-big" src="assets/people/dolsoe.png" alt="돌쇠" />
           </div>
         </div>
+        <aside class="notes">
+          <p>양반이 새로 온 돌쇠에게 하는 말을 한 줄씩 보겠습니다. 모두 나온 뒤에 각 줄이 어떤 역할인지 태그가 붙어요.</p>
+          <p>해야 할 일, 규칙, 기록, 모르면 물어볼 곳. 이 네 가지가 오늘 이야기의 뼈대입니다. 기록과 물어볼 곳은 다음 편에서 자료함과 업무 수첩으로 다시 나옵니다.</p>
+        </aside>
       </section>
 
-      <section class="slide" data-title="그냥 청소하라고 했다면">
+      <section class="slide" data-title="그냥 청소해">
         <div class="content">
-          <div class="kicker">불명확한 위임의 결과</div>
-          <h2>그냥 “청소해”라고 했다면?</h2>
-          <div class="flow fragment">
-            <div class="node">무엇을 청소?</div><div class="arrow">→</div>
-            <div class="node">돌쇠가 임의 판단</div><div class="arrow">→</div>
-            <div class="node">기대와 다른 결과</div>
+          <h2>그냥 “청소해”라고만 했다면</h2>
+          <div class="pipeline fragment">
+            <div class="step"><i class="icon i-message-square"></i>“청소해”</div>
+            <div class="arrow">→</div>
+            <div class="step"><i class="icon i-shuffle"></i>돌쇠 마음대로</div>
+            <div class="arrow">→</div>
+            <div class="step stop"><i class="icon i-triangle-alert"></i>주인은 불만</div>
           </div>
-          <div class="quote fragment">“AI를 통한 자동화”는 새 개념이 아니다.</div>
-          <p class="lead fragment">그래서 우리는 새 도구의 이름보다, <strong>업무를 제대로 위임하는 원칙</strong>을 먼저 기억해야 한다.</p>
-        </div>
-      </section>
-
-      <section class="slide" data-title="Garbage In, Garbage Out">
-        <div class="content">
-          <div class="kicker">사람과 AI의 공통점</div>
-          <h2>왜 “새 개념이 아니다”가 중요한가?</h2>
-          <div class="quote">Garbage In, Garbage Out.<br /><small>입력값이 쓰레기이면 출력값도 쓰레기다.</small></div>
           <div class="split fragment">
-            <p class="lead"><strong>AI는 인간보다 작업 속도가 빠르다.</strong><br />다만 사람에게 위임하든 AI에게 위임하든, 목표·맥락·제약·검증 기준이 부실하면 결과도 흔들린다.</p>
+            <div class="quote">Garbage In, Garbage Out.<br />대충 시키면 대충 나온다.</div>
             <img class="wide-image" src="assets/하지만빨랐죠.png" alt="하지만 빨랐죠 밈" />
           </div>
         </div>
+        <aside class="notes">
+          <p>무엇을 어디까지 청소할지 모르면 돌쇠는 자기 생각대로 합니다. 결과는 주인 마음에 들지 않을 가능성이 크죠.</p>
+          <p>AI도 똑같습니다. 다른 점은 속도예요. AI는 잘못된 방향으로도 아주 빠르게 달려갑니다.</p>
+        </aside>
       </section>
 
-      <section class="slide" data-title="왜 찰떡같이 답할까">
+      <section class="slide dark" data-title="세 번의 변화">
         <div class="content">
-          <div class="kicker">프론티어 모델의 착시</div>
-          <h2>“개떡같이 말해도 찰떡같이 답하던데요?”</h2>
-          <div class="grid cols-3">
-            <article class="card fragment"><span class="tag">01</span><h3>사전 학습</h3><p>엄청난 양의 언어 패턴과 범용 지식을 이미 익혔다.</p></article>
-            <article class="card fragment"><span class="tag">02</span><h3>숨은 하네스</h3><p>시스템 지침, 안전 정책, 도구 규칙, 대화 관리가 서비스에 내장돼 있다.</p></article>
-            <article class="card fragment"><span class="tag">03</span><h3>일반적 기대</h3><p>범용 질문은 평균적인 답만으로도 많은 사용자가 만족한다.</p></article>
-          </div>
-          <p class="lead fragment"><strong>특수한 업무</strong>로 들어가는 순간, 내 조직의 맥락과 규칙을 직접 제공해야 한다.</p>
-        </div>
-      </section>
-
-      <section class="slide dark" data-title="인간의 눈물겨운 3단계">
-        <div class="content">
-          <div class="kicker">HISTORY OF INSTRUCTION</div>
-          <h2>인간이 기계에게 업무를 지시해 온<br />눈물겨운 3단계</h2>
+          <h2>기계에게 일 시키는 방법은 세 번 바뀌었다</h2>
           <div class="timeline">
-            <div class="era fragment"><b>1.0</b><h3>코드</h3><p>모든 규칙을 사람이 명시한다.</p></div>
-            <div class="era fragment"><b>2.0</b><h3>데이터</h3><p>예시로 가중치를 학습한다.</p></div>
-            <div class="era fragment"><b>3.0</b><h3>자연어</h3><p>언어와 컨텍스트로 행동을 지시한다.</p></div>
+            <div class="era fragment"><b>1.0</b><h3><i class="icon i-code"></i> 코드</h3><p>규칙을 사람이 전부 적는다.</p><img src="assets/elseif지옥.png" alt="끝없이 이어지는 조건문" /></div>
+            <div class="era fragment"><b>2.0</b><h3><i class="icon i-database"></i> 데이터</h3><p>예시를 잔뜩 보여 주고 스스로 배우게 한다.</p></div>
+            <div class="era fragment"><b>3.0</b><h3><i class="icon i-message-square"></i> 말</h3><p>사람이 쓰는 말로 시킨다.</p></div>
           </div>
         </div>
+        <aside class="notes">
+          <p>처음에는 개발자가 모든 규칙을 코드로 적었습니다. 예외가 늘면 조건문이 끝없이 늘어나죠.</p>
+          <p>다음에는 데이터를 잔뜩 보여 주고 기계가 스스로 규칙을 찾게 했습니다. 지금은 우리가 쓰는 말로 시킵니다.</p>
+          <p>말로 시킬 수 있게 됐다는 건, 이제 지시하는 말의 품질이 결과를 정한다는 뜻입니다.</p>
+        </aside>
       </section>
 
-      <section class="slide" data-title="Software 1.0">
-        <div class="content split">
-          <div>
-            <div class="kicker">SOFTWARE 1.0</div>
-            <h2>규칙을 항상 명시</h2>
-            <ul>
-              <li>조건, 반복, 순서를 코드로 작성</li>
-              <li>개발자에게 친숙하지만 일반인에게 어려움</li>
-              <li>예외가 늘수록 규칙도 폭발</li>
-            </ul>
-            <pre>if (vip) discount = 20;
-else if (coupon) discount = 10;
-else if (event &amp;&amp; firstBuy) ...
-else if (...) ...</pre>
-          </div>
-          <div class="center">
-            <img class="wide-image" src="assets/elseif지옥.png" alt="복잡하게 얽힌 else-if 지옥 예시" />
-            <p class="image-caption">명시적 규칙의 끝: else-if 지옥</p>
-          </div>
-        </div>
-      </section>
-
-      <section class="slide" data-title="Software 2.0">
+      <section class="slide" data-title="다음 단어 기계">
         <div class="content">
-          <div class="kicker">SOFTWARE 2.0</div>
-          <h2>규칙 대신 데이터로 가중치를 학습</h2>
+          <h2>AI는 다음 단어를 고르는 기계다</h2>
           <div class="grid cols-2">
-            <article class="card">
-              <h3>문장 → 토큰 ID</h3>
-              <p>“오늘 날씨가 좋다”</p>
-              <div class="token-row">
-                <span class="token">오늘<small>ID 3921</small></span>
-                <span class="token">날씨<small>ID 8174</small></span>
-                <span class="token">가<small>ID 214</small></span>
-                <span class="token">좋<small>ID 6508</small></span>
-                <span class="token">다<small>ID 105</small></span>
+            <div class="prediction-example">
+              <h3>“회의가 취소되어서 시간을…”</h3>
+              <div class="probability best"><span>확보했다</span><div class="meter"><i style="--w:72%"></i></div><span>72%</span></div>
+              <div class="probability"><span>먹었다</span><div class="meter"><i style="--w:12%"></i></div><span>12%</span></div>
+              <div class="probability"><span>달렸다</span><div class="meter"><i style="--w:7%"></i></div><span>7%</span></div>
+            </div>
+            <div class="prediction-example fragment">
+              <h3>“뜨거운 냄비를 맨손으로 잡으면…”</h3>
+              <div class="probability best"><span>위험하다</span><div class="meter"><i style="--w:67%"></i></div><span>67%</span></div>
+              <div class="probability"><span>화상</span><div class="meter"><i style="--w:21%"></i></div><span>21%</span></div>
+              <div class="probability"><span>즐겁다</span><div class="meter"><i style="--w:2%"></i></div><span>2%</span></div>
+            </div>
+          </div>
+          <div class="quote fragment">그럴듯한 것과 사실은 다르다.</div>
+        </div>
+        <aside class="notes">
+          <p>AI는 앞의 말을 보고 다음에 올 가장 그럴듯한 말을 고릅니다. 확률은 설명을 위한 예시 값이에요.</p>
+          <p>그래서 그럴듯하지만 틀린 답, 이른바 환각이 생깁니다. 이유가 하나 더 있는데요, 학습과 평가 과정이 "모르겠다"보다 추측을 더 보상해 왔다는 점입니다. OpenAI가 2025년 9월 연구에서 이 점을 설명했습니다.</p>
+          <p>출처: openai.com/index/why-language-models-hallucinate</p>
+        </aside>
+      </section>
+
+      <section class="slide" data-title="생각하고 답하는 AI">
+        <div class="content">
+          <h2>요즘 AI는 생각하고 나서 답한다</h2>
+          <div class="grid cols-2">
+            <div class="icon-card">
+              <i class="icon i-zap"></i>
+              <h3>빠르게 답하기</h3>
+              <p>바로 떠오르는 대로 쓴다</p>
+              <div class="chips"><span class="chip fragment">짧은 문구 다듬기</span><span class="chip fragment">메일 인사말</span></div>
+            </div>
+            <div class="icon-card">
+              <i class="icon i-lightbulb"></i>
+              <h3>깊게 생각하기</h3>
+              <p>여러 단계를 따져 보고 쓴다</p>
+              <div class="chips"><span class="chip fragment">숫자 비교</span><span class="chip fragment">계약 조건 검수</span><span class="chip fragment">시장 규모 추정</span></div>
+            </div>
+          </div>
+          <!-- F1 example box -->
+        </div>
+        <aside class="notes">
+          <p>요즘 AI는 답하기 전에 속으로 여러 단계를 따져 보는 모드가 있습니다. 추론 모델, 또는 생각 모드라고 부릅니다.</p>
+          <p>짧은 문구처럼 가벼운 일은 빠르게, 숫자 비교나 검수처럼 틀리면 곤란한 일은 깊게 시키세요. 요즘은 서비스가 알아서 골라 주기도 합니다.</p>
+          <p>메뉴 이름은 자주 바뀌니 발표 직전에 한 번 확인하세요.</p>
+        </aside>
+      </section>
+
+      <section class="slide" data-title="찰떡같이 알아듣는 이유">
+        <div class="content">
+          <h2>대충 말해도 잘 알아듣던데요?</h2>
+          <div class="mock layered">
+            <div class="behind fragment">
+              <div class="doc-mock tilt">
+                <h4>서비스에 숨은 지시서</h4>
+                <p>친절하게 답한다.</p>
+                <p>모르면 모른다고 한다.</p>
+                <p>위험한 요청은 거절한다.</p>
               </div>
-              <p>실제 ID와 분할 방식은 모델마다 다르다.</p>
-            </article>
-            <article class="card">
-              <h3>가중치 조정 → 정답 확률 상승</h3>
-              <p>예측 목표: “오늘 날씨가 <strong>좋다</strong>”</p>
-              <div class="weight-chart" aria-label="학습이 진행되며 정답 확률이 높아지는 막대 그래프">
-                <div class="bar-col" data-score="24%" style="--h:24%"><span>초기</span></div>
-                <div class="bar-col fragment" data-score="48%" style="--h:48%"><span>학습 1</span></div>
-                <div class="bar-col fragment" data-score="71%" style="--h:71%"><span>학습 2</span></div>
-                <div class="bar-col best fragment" data-score="91%" style="--h:91%"><span>수렴</span></div>
+            </div>
+            <div class="chat-mock front">
+              <div class="bar">AI 채팅</div>
+              <div class="msg user">회의 잘하는 법 알려줘.</div>
+              <div class="msg ai"><p>회의 목적을 먼저 정하고, 안건을 미리 나누고, 끝날 때 할 일을 정리하세요.</p></div>
+            </div>
+          </div>
+          <p class="lead fragment">일반적인 질문은 이미 잘한다. 문제는 우리 회사 일이다.</p>
+        </div>
+        <aside class="notes">
+          <p>"대충 물어봐도 잘 답하던데요?" 맞습니다. 누구에게나 통하는 질문이라서 그렇습니다.</p>
+          <p>게다가 서비스 안에는 우리 눈에 보이지 않는 지시서가 이미 들어 있어요. 친절하게, 안전하게 답하라는 식의 지시입니다.</p>
+          <p>그런데 우리 회사, 우리 제품 이야기로 들어가면 사정이 달라집니다. 바로 다음 장입니다.</p>
+        </aside>
+      </section>
+
+      <section class="slide" data-title="모르는 건 못 채운다">
+        <div class="content">
+          <h2>모르는 건 AI도 채울 수 없다</h2>
+          <div class="grid cols-2">
+            <div class="chat-mock">
+              <div class="bar">AI 채팅</div>
+              <div class="msg user">우리 신제품 런칭 문구 써줘.</div>
+              <div class="msg ai think fragment">제품이 뭐지?</div>
+              <div class="msg ai think fragment">고객은 누구지?</div>
+              <div class="msg ai think fragment">어떤 말투로 쓰지?</div>
+            </div>
+            <div class="fork fragment">
+              <div class="root">“한번 검토해 주세요”</div>
+              <div class="branches">
+                <span class="chip">맞춤법을 봐 달라?</span>
+                <span class="chip">사실을 확인해 달라?</span>
+                <span class="chip">법에 걸리는 표현을 찾아 달라?</span>
+                <span class="chip">말투를 다듬어 달라?</span>
               </div>
-              <p style="margin-top:42px">정답과 예측의 오차를 계산하고, 오차가 줄어드는 방향으로 가중치를 조금씩 바꾼다.</p>
-            </article>
+            </div>
           </div>
+          <p class="lead fragment">머릿속 기준을 글로 꺼내야 AI가 쓸 수 있다.</p>
         </div>
+        <aside class="notes">
+          <p>"우리 신제품 런칭 문구 써줘"라고 하면 AI는 우리 제품이 결제 단말기인지, 손님이 누구인지, 우리 브랜드가 어떤 말투인지 모릅니다.</p>
+          <p>"한번 검토해 주세요"도 마찬가지예요. 사람끼리는 눈치로 알아듣지만, AI는 이 말이 네 가지 중 무엇인지 모릅니다. 한국어는 이렇게 맥락에 기대는 말이 많아요.</p>
+          <p>머릿속에 있는 기준을 글로 꺼내 주는 것, 그게 지시서입니다.</p>
+        </aside>
       </section>
 
-      <section class="slide" data-title="Software 3.0">
+      <section class="slide" data-title="좋은 지시서">
         <div class="content">
-          <div class="kicker">SOFTWARE 3.0</div>
-          <h2>자연어로 행동을 프로그래밍</h2>
-          <p class="lead">누구에게나 친숙하고, 명시 규칙과 학습된 암묵 규칙이 함께 작동한다.</p>
-          <pre class="fragment">역할: 당신은 고객지원 담당자입니다.
-목표: 환불 요청의 긴급도를 분류하세요.
-규칙: 정책 문서에 없는 내용은 추측하지 마세요.
-출력: {"등급": "...", "이유": "...", "다음 행동": "..."}</pre>
-          <div class="quote fragment">행동을 바꾸려면 코드를 다시 학습시키는 대신, <strong>컨텍스트를 바꾼다.</strong></div>
+          <h2>좋은 지시서에는 무엇이 들어가나</h2>
+          <div class="split">
+            <div class="doc-mock">
+              <h4>포켓페이 P1 출시 문구 지시서</h4>
+              <span class="zone fragment" style="--z: var(--red)"><b>원하는 결과</b>인스타그램 출시 안내 문구 3개</span>
+              <span class="zone fragment" style="--z: var(--gold)"><b>읽을 사람과 쓰일 곳</b>피드를 넘기는 카페, 식당 사장님</span>
+              <span class="zone fragment" style="--z: var(--teal)"><b>참고 자료</b>첨부한 제품 스펙과 브랜드 가이드</span>
+              <span class="zone fragment" style="--z: var(--green)"><b>지켜야 할 조건</b>30자 이내, “최고”, “최초”는 쓰지 않기</span>
+              <span class="zone fragment" style="--z: var(--teal-dark)"><b>결과의 모양</b>번호 목록, 문구마다 내세운 장점 한 줄</span>
+              <span class="zone fragment" style="--z: var(--navy-2)"><b>잘됐는지 판단할 기준</b>사장님이 3초 안에 장점을 알아볼 수 있는가</span>
+            </div>
+            <p class="lead fragment">“당신은 마케팅 전문가입니다” 같은 역할 한 줄은 말투를 맞출 뿐, 정확도를 올리지는 않는다.</p>
+          </div>
         </div>
+        <aside class="notes">
+          <p>좋은 지시서에는 여섯 가지가 들어갑니다. 돌쇠에게 한 말과 비교해 보세요. 해야 할 일, 규칙, 참고할 곳이 모두 들어 있습니다.</p>
+          <p>예전 자료에서는 "역할: 당신은 SRE 리드입니다" 같은 역할 문장을 좋은 예로 들었습니다. 연구를 보면 역할을 줘도 사실 정확도는 오르지 않았습니다(Wharton, 2025년 12월). 칭찬, 협박, "심호흡해" 같은 요령도 요즘 모델에서는 효과가 작거나 들쭉날쭉합니다.</p>
+          <p>역할 한 줄은 말투를 맞추는 정도로만 쓰고, 상황과 읽을 사람을 설명하는 데 힘을 쓰세요.</p>
+          <p>출처: arxiv.org/abs/2512.05858, arxiv.org/abs/2508.00614, platform.claude.com 프롬프트 가이드</p>
+        </aside>
       </section>
 
-      <section class="slide" data-title="겉은 3.0, 속은 2.0">
+      <section class="slide" data-title="실무 ① 회의록">
         <div class="content">
-          <div class="kicker">중요한 연결</div>
-          <h2>지시 방식은 변했지만,<br />AI의 계산 방식이 사라진 것은 아니다</h2>
-          <div class="flow">
-            <div class="node">사람의 언어</div><div class="arrow">→</div>
-            <div class="node">토큰 분할</div><div class="arrow">→</div>
-            <div class="node">토큰 ID</div><div class="arrow">→</div>
-            <div class="node">학습된 가중치</div><div class="arrow">→</div>
-            <div class="node">다음 토큰</div>
-          </div>
-          <p class="lead">Software 3.0은 자연어 인터페이스다. 그 아래에서는 Software 2.0의 학습된 가중치가 계속 계산한다.</p>
-          <p class="fragment"><strong>도구가 필요하면</strong> 모델은 자연어 의도를 구조화된 호출이나 코드로 변환해 실행 환경에 요청한다.</p>
-        </div>
-      </section>
-
-      <section class="slide" data-title="다음 단어를 고르는 기계">
-        <div class="content">
-          <div class="kicker">NEXT TOKEN PREDICTION</div>
-          <h2>문맥에 따라 다음 토큰의 확률이 달라진다</h2>
-          <div class="prediction-example">
-            <h3>예시 1. “회의가 취소되어서 시간을…”</h3>
-            <div class="probability best"><span>확보했다</span><div class="meter"><i style="--w:72%"></i></div><span>72%</span></div>
-            <div class="probability"><span>먹었다</span><div class="meter"><i style="--w:12%"></i></div><span>12%</span></div>
-            <div class="probability"><span>달렸다</span><div class="meter"><i style="--w:7%"></i></div><span>7%</span></div>
-          </div>
-          <div class="prediction-example fragment">
-            <h3>예시 2. “뜨거운 냄비를 맨손으로 잡으면…”</h3>
-            <div class="probability best"><span>위험하다</span><div class="meter"><i style="--w:67%"></i></div><span>67%</span></div>
-            <div class="probability"><span>화상</span><div class="meter"><i style="--w:21%"></i></div><span>21%</span></div>
-            <div class="probability"><span>즐겁다</span><div class="meter"><i style="--w:2%"></i></div><span>2%</span></div>
-          </div>
-          <div class="quote fragment">AI는 인간처럼 “옳고 그름”을 느끼지 않는다.<br />맥락상 가장 그럴듯한 다음 토큰을 계산한다.</div>
-          <p class="fragment">가치 판단처럼 보이는 답변도 학습 데이터, 후속 정렬, 시스템 정책, 현재 컨텍스트의 결과다.</p>
-        </div>
-      </section>
-
-      <section class="slide" data-title="일반 능력의 한계">
-        <div class="content">
-          <div class="kicker">GENERAL ≠ SPECIFIC</div>
-          <h2>똑똑해 보여도, 모르는 맥락은 채울 수 없다</h2>
+          <h2>실무 ① 회의록 요약</h2>
           <div class="grid cols-2">
-            <article class="card fragment">
-              <h3>“우리 회사 시스템을 개선해줘”</h3>
-              <p>아키텍처, 트래픽, 장애 이력, 비용, 규제, 목표가 없다. AI는 일반론만 말하거나 추측한다.</p>
-            </article>
-            <article class="card fragment">
-              <h3>“살 만한 주식 추천해줘”</h3>
-              <p>AI는 사용자가 <strong>어느 나라 주식</strong>을 원하는지, <strong>언제 얼마를 매수</strong>할지, <strong>단기·중기·장기</strong> 중 얼마나 보유할지, 손실을 얼마나 감수할지 모른다.</p>
-              <p>표·보고서·종목 목록 등 <strong>원하는 결과 양식</strong>도 없으므로, 결국 일반적인 수준의 답만 줄 수 있다.</p>
-            </article>
+            <div class="chat-mock bad">
+              <div class="bar">나쁜 지시</div>
+              <div class="msg user">회의 녹음 요약해줘.</div>
+              <div class="msg ai fragment"><p>회의에서는 런칭 일정과 마케팅 방향에 대해 다양한 의견이 오갔습니다. 여러 사항을 논의했고 추후 다시 검토하기로 했습니다.</p></div>
+            </div>
+            <div class="chat-mock good">
+              <div class="bar">좋은 지시</div>
+              <div class="msg user">
+                <p>첨부한 킥오프 회의 전사본을 팀 공유용으로 요약해줘.</p>
+                <p>양식: 결정 사항, 담당자와 기한, 남은 쟁점. 전사본에 없는 내용은 쓰지 마.</p>
+              </div>
+              <div class="msg ai fragment">
+                <p><b>결정 사항</b> 출시일 10월 15일, 첫 판매 채널은 소상공인 박람회</p>
+                <p><b>담당자와 기한</b> 카피 초안 김대리 10월 2일, 제품 사진 촬영 박과장 10월 6일</p>
+                <p><b>남은 쟁점</b> 단말기 무상 대여 이벤트 여부는 다음 회의에서 결정</p>
+              </div>
+            </div>
           </div>
-          <p class="lead fragment">모델의 한계만 탓하기 전에, <strong>업무의 정답지를 정의했는지</strong> 확인해야 한다.</p>
         </div>
+        <aside class="notes">
+          <p>같은 녹음을 두고 두 가지로 부탁해 봤습니다. 왼쪽은 그럴듯하지만 아무도 이 요약으로 일을 시작할 수 없어요.</p>
+          <p>오른쪽은 결과 양식과 읽을 사람을 알려 줬습니다. 그래서 받자마자 팀 채팅방에 올릴 수 있는 결과가 나옵니다.</p>
+        </aside>
       </section>
 
-      <section class="slide" data-title="결국 컨텍스트">
+      <section class="slide" data-title="실무 ② 런칭 카피">
         <div class="content">
-          <div class="kicker">CONTEXT</div>
-          <h2>결국 중요한 것은 “맥락”이다</h2>
-          <p>한국어를 흔히 고맥락 언어라고 부르지만, 개인·조직·상황 차이가 크다. AI에게는 암묵적 맥락을 기대하지 않는 편이 안전하다.</p>
+          <h2>실무 ② 런칭 카피</h2>
           <div class="grid cols-2">
-            <article class="card fragment">
-              <span class="tag">한국어 해프닝</span>
-              <h3>“한번 검토해 주세요.”</h3>
-              <p>사람 사이에서는 “문제점을 찾아 수정안까지 달라”는 뜻일 수 있다. AI는 요약만 하고 끝낼 수 있다.</p>
-            </article>
-            <article class="card fragment">
-              <span class="tag">영어 해프닝</span>
-              <h3>“That might be difficult.”</h3>
-              <p>완곡한 거절 의도였지만 상대는 “어렵지만 가능”으로 받아들여 계속 진행할 수 있다.</p>
-            </article>
+            <div class="chat-mock bad">
+              <div class="bar">나쁜 지시</div>
+              <div class="msg user">런칭 문구 써줘.</div>
+              <div class="msg ai fragment"><p>혁신적인 새 제품을 지금 만나 보세요! 당신의 일상을 바꿀 최고의 선택.</p></div>
+            </div>
+            <div class="chat-mock good">
+              <div class="bar">좋은 지시</div>
+              <div class="msg user">
+                <p>포켓페이 P1 출시 안내 문구 3개 써줘.</p>
+                <p>제품: 주머니에 들어가는 휴대형 결제 단말기. 고객: 카페, 식당, 푸드트럭 사장님. 채널: 인스타그램.</p>
+                <p>친근한 존댓말, 30자 이내. “최고”, “최초”, 근거 없는 “수수료 0원”은 쓰지 마.</p>
+                <p>이런 느낌으로: “줄 선 손님 앞에서, 결제는 주머니에서” “테이블까지 찾아가는 결제”</p>
+              </div>
+              <div class="msg ai fragment">
+                <ol>
+                  <li>꺼내면 바로, 결제는 주머니에서 끝</li>
+                  <li>푸드트럭 창가에서도 결제 한 번에</li>
+                  <li>손님 자리까지 가는 작은 결제 단말기</li>
+                </ol>
+              </div>
+            </div>
           </div>
-          <div class="quote fragment">암묵지를 명시지로 바꾸는 일이 곧 프롬프트 설계다.</div>
         </div>
+        <aside class="notes">
+          <p>왼쪽 답은 어느 제품에나 붙일 수 있는 문구입니다. 게다가 "최고"라는 말이 들어갔어요. 광고에서는 근거가 있어야 쓸 수 있는 말입니다.</p>
+          <p>오른쪽은 제품, 고객, 채널, 말투, 길이, 금지 표현을 알려 주고 좋은 예시 두 개를 붙였습니다. 말투를 전하는 가장 빠른 방법은 예시를 보여 주는 것입니다.</p>
+          <p>포켓페이 P1과 우리 회사는 설명을 위해 만든 가상의 이름입니다.</p>
+        </aside>
       </section>
 
-      <section class="slide" data-title="질문을 업무 명세로">
+      <section class="slide" data-title="실무 ③ 시장 규모">
         <div class="content">
-          <div class="kicker">BEFORE / AFTER</div>
-          <h2>질문이 아니라 업무 명세를 전달한다</h2>
+          <h2>실무 ③ 시장 규모, 틀은 AI가 만들고 숫자는 사람이 채운다</h2>
           <div class="grid cols-2">
-            <article class="card bad">
-              <span class="tag">잘못된 질의</span>
-              <h3>“우리 서비스 장애 원인 분석해줘.”</h3>
-              <p>대상, 증거, 목표, 제약, 결과 형식이 없다.</p>
-            </article>
-            <article class="card good fragment">
-              <span class="tag">개선된 질의</span>
-              <p><b>역할:</b> 당신은 SRE 리드입니다.</p>
-              <p><b>목표:</b> 09:00~09:20 결제 오류 급증의 가장 유력한 원인 3개를 찾으세요.</p>
-              <p><b>근거:</b> 첨부 로그와 배포 이력만 사용하고, 모르면 “근거 부족”이라고 쓰세요.</p>
-              <p><b>규칙:</b> 각 가설에 근거·반증 방법·위험도를 붙이세요.</p>
-              <p><b>출력:</b> 표 + 즉시 조치 3단계. 감사합니다.</p>
-            </article>
+            <div class="chat-mock bad">
+              <div class="bar">나쁜 지시</div>
+              <div class="msg user">국내 휴대형 결제 단말기 시장 규모 알려줘.</div>
+              <div class="msg ai warn fragment"><p>국내 휴대형 결제 단말기 시장은 약 4,800억 원 규모입니다(출처: 한국결제산업연구원, 2025).</p></div>
+              <span class="chip warn fragment"><i class="icon i-triangle-alert"></i>이 출처는 정말 있을까?</span>
+            </div>
+            <div class="fragment">
+              <div class="chat-mock good">
+                <div class="msg user">시장 규모를 추정할 가정표와 계산식을 만들어 줘. 숫자는 비워 두고, 내가 찾아야 할 숫자 목록을 따로 줘.</div>
+              </div>
+              <div class="sheet-wrap" style="margin-top: 12px">
+                <table class="sheet-mock">
+                  <thead><tr><th>항목</th><th>계산</th><th>값</th></tr></thead>
+                  <tbody>
+                    <tr><td>대상 사업장 수</td><td>카페, 식당, 푸드트럭 수</td><td class="num blank">사람이 채움</td></tr>
+                    <tr><td>단말기 교체 주기</td><td>업계 자료</td><td class="num blank">사람이 채움</td></tr>
+                    <tr><td>평균 가격</td><td>주요 제품 가격 평균</td><td class="num blank">사람이 채움</td></tr>
+                    <tr><td>연 시장 규모</td><td>사업장 수 ÷ 교체 주기 × 가격</td><td class="num">자동 계산</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
-          <p class="fragment">칭찬과 감사는 대화를 부드럽게 할 수 있지만, 품질을 결정하는 핵심은 <strong>역할·목표·맥락·제약·검증 기준</strong>이다.</p>
         </div>
+        <aside class="notes">
+          <p>왼쪽 답의 출처와 숫자는 제가 지어낸 예시입니다. 실제로 AI도 검색 없이 출처를 요구받으면 이렇게 그럴듯한 가짜 출처를 만들 때가 있어요.</p>
+          <p>그래서 오늘은 AI에게 계산의 틀만 맡기고, 숫자는 사람이 확인해서 채웁니다. 숫자까지 찾아오게 하는 방법은 3편에서 다룹니다.</p>
+        </aside>
       </section>
 
-      <section class="slide" data-title="답변 품질의 차이">
+      <section class="slide" data-title="먼저 묻게 하기">
         <div class="content">
-          <div class="kicker">OUTPUT COMPARISON</div>
-          <h2>같은 모델, 다른 입력, 다른 결과</h2>
+          <h2>시작하기 전에 AI가 먼저 묻게 하자</h2>
+          <div class="chat-mock" style="width: min(820px, 100%); margin: 0 auto">
+            <div class="bar">AI 채팅</div>
+            <div class="msg user">Zebra 벤치마킹 보고서 써줘. 시작 전에 부족한 정보가 있으면 먼저 질문해줘.</div>
+            <div class="msg ai fragment">
+              <p>시작하기 전에 세 가지만 여쭤볼게요.</p>
+              <ol>
+                <li>어느 제품군을 볼까요? 결제 단말기인가요, 매장용 모바일 컴퓨터인가요?</li>
+                <li>가격, 판매 채널, 서비스 중 어떤 관점이 가장 중요한가요?</li>
+                <li>누구에게 보고하는 자료인가요?</li>
+              </ol>
+            </div>
+            <div class="msg user fragment">결제 단말기, 판매 채널 중심, 팀장 보고용이야.</div>
+            <div class="msg ai fragment"><p>그럼 판매 채널을 중심으로 한 장짜리 보고서를 쓰겠습니다.</p></div>
+          </div>
+        </div>
+        <aside class="notes">
+          <p>무엇을 알려 줘야 할지 모르겠다면, AI에게 먼저 물어보게 하세요. "시작 전에 부족한 정보를 질문해줘" 한 문장이면 됩니다.</p>
+          <p>Zebra는 매장과 현장에서 쓰는 모바일 기기로 잘 알려진 회사라서, 우리 회사의 벤치마킹 대상으로 삼았습니다. 이 보고서는 2편과 3편에서 계속 발전시킵니다.</p>
+          <p>한 번에 완벽한 답을 받으려 하지 말고, 대화로 다듬는다고 생각하세요.</p>
+        </aside>
+      </section>
+
+      <section class="slide" data-title="유도 말고 확인">
+        <div class="content">
+          <h2>답을 정해 놓고 묻지 말고, 받은 답은 확인하자</h2>
           <div class="grid cols-2">
-            <article class="card bad">
-              <span class="tag">모호한 질문의 답</span>
-              <div class="answer">장애 원인은 네트워크 문제, 서버 과부하, 데이터베이스 오류 등일 수 있습니다. 로그를 확인하고 모니터링 지표를 살펴보세요.</div>
-              <p>그럴듯하지만 바로 행동하기 어렵다.</p>
-            </article>
-            <article class="card good fragment">
-              <span class="tag">명세된 질문의 답</span>
-              <div class="answer">1순위: 08:57 결제 API v2.14 배포<br />근거: 배포 3분 뒤 5xx가 0.4%→18.2% 증가<br />반증: 이전 버전으로 5% 카나리 롤백 후 오류율 비교<br />위험도: 높음<br /><br />즉시 조치: 신규 트래픽 차단 → 카나리 롤백 → 결제 재처리 큐 보존</div>
-              <p>근거와 다음 행동을 바로 검증할 수 있다.</p>
-            </article>
+            <div class="chat-mock bad">
+              <div class="bar">유도 질문</div>
+              <div class="msg user">이 카피 좋지? 내가 밤새 쓴 거야.</div>
+              <div class="msg ai warn"><p>정말 훌륭해요! 고칠 곳이 거의 없습니다.</p></div>
+            </div>
+            <div class="chat-mock good fragment">
+              <div class="bar">기준을 준 질문</div>
+              <div class="msg user">이 카피를 세 기준으로 판정해줘. 기준마다 통과인지 보완인지와 근거를 적어줘.</div>
+              <div class="msg ai">
+                <p><b>30자 이내</b> 통과, 24자</p>
+                <p><b>장점이 하나로 보이는가</b> 보완, 장점이 세 개라 흩어짐</p>
+                <p><b>금지 표현</b> 보완, “최고”는 근거가 필요함</p>
+              </div>
+            </div>
+          </div>
+          <div class="chips fragment" style="margin-top: 16px">
+            <span class="chip"><i class="icon i-chart-column"></i>숫자 확인</span>
+            <span class="chip"><i class="icon i-link"></i>인용과 출처 확인</span>
+            <span class="chip"><i class="icon i-user"></i>이름과 고유명사 확인</span>
+            <span class="chip"><i class="icon i-repeat"></i>다른 AI로 한 번 더 검수</span>
           </div>
         </div>
+        <aside class="notes">
+          <p>"좋지?"라고 물으면 AI는 맞장구치는 경향이 있습니다. 특히 내가 썼다, 내가 좋아한다고 밝히면 평가가 후해진다는 연구가 있어요. OpenAI는 2025년 4월 이런 아첨이 심해진 업데이트를 되돌리기도 했습니다.</p>
+          <p>그래서 답을 정해 놓고 묻지 말고, 기준을 주고 기준마다 판정과 근거를 달라고 하세요. 받은 답의 숫자, 출처, 이름은 직접 확인하고, 중요한 문서는 다른 AI에게 한 번 더 검수받으세요.</p>
+          <p>출처: arxiv.org/abs/2310.13548, openai.com/index/sycophancy-in-gpt-4o</p>
+        </aside>
       </section>
 
-      <section class="slide dark" data-title="MCP는 왜 쓰나">
+      <section class="slide" data-title="넣으면 안 되는 것">
         <div class="content">
-          <div class="kicker">MODEL CONTEXT PROTOCOL</div>
-          <h2>MCP: AI와 외부 세계 사이의<br />표준화된 작업 계약</h2>
-          <div class="mcp-map">
-            <div class="card"><h3>AI 애플리케이션</h3><p>사용자 의도를 해석하고 어떤 기능을 쓸지 결정</p></div>
-            <div class="mcp-center">MCP</div>
-            <div class="card"><h3>외부 시스템</h3><p>파일, DB, GitHub, 사내 API, 브라우저</p></div>
-          </div>
-          <div class="grid cols-2">
-            <article class="card fragment"><h3>작업 경계와 보안</h3><p>허용된 도구, 입력 스키마, 권한, 승인 흐름으로 “무엇을 할 수 있는지”를 제한한다.</p></article>
-            <article class="card fragment"><h3>능력 확장과 표준화</h3><p>모델 혼자 못 하는 읽기·검색·실행을 외부 서버가 제공하고, 클라이언트가 공통 방식으로 발견한다.</p></article>
-          </div>
-        </div>
-      </section>
-
-      <section class="slide" data-title="MCP가 없다면">
-        <div class="content">
-          <div class="kicker">권한·경계·비밀의 실패</div>
-          <h2>MCP 같은 작업 계약이 없다면?</h2>
-          <div class="fragment">
-            <div class="dialogue owner"><b>양반:</b> 돌쇠야, 금고에서 돈 좀 꺼내 오거라.</div>
-            <div class="dialogue worker"><b>돌쇠:</b> 비밀번호가 필요합니다.</div>
-            <div class="dialogue owner"><b>양반:</b> 1234.</div>
-            <p>비밀을 손등에 적음 → <strong>자격 증명 노출</strong></p>
-          </div>
-          <div class="fragment">
-            <div class="dialogue worker"><b>돌쇠:</b> 금고가 더러워 닦고, 불안해 보여 돈 일부는 뒤뜰에 묻었습니다.</div>
-            <div class="dialogue owner"><b>양반:</b> 그걸 왜 네 마음대로?</div>
-            <p>청소 권한을 자산 이동까지 확대 → <strong>최소 권한·작업 범위 실패</strong></p>
-          </div>
-          <div class="fragment">
-            <div class="dialogue owner"><b>개발자:</b> D 드라이브를 포맷해.</div>
-            <div class="dialogue worker"><b>AI:</b> C 드라이브에도 불필요한 파일이 보여 함께 포맷합니다.</div>
-            <p>파괴적 작업에 승인 단계 없음 → <strong>명시적 동의·감사 로그 실패</strong></p>
-          </div>
-        </div>
-      </section>
-
-      <section class="slide" data-title="MCP 종류와 설정">
-        <div class="content">
-          <div class="kicker">MCP PRACTICAL GUIDE</div>
-          <h2>MCP는 기능, 연결 방식, 신뢰 경계로 본다</h2>
+          <h2>AI에게 넣으면 안 되는 것</h2>
           <div class="grid cols-3">
-            <article class="card">
-              <h3>서버 기능</h3>
-              <ul class="small"><li><b>Tools</b>: 실행 가능한 작업</li><li><b>Resources</b>: 읽을 컨텍스트</li><li><b>Prompts</b>: 재사용 지시 템플릿</li></ul>
-            </article>
-            <article class="card">
-              <h3>연결 방식</h3>
-              <ul class="small"><li><b>stdio</b>: 로컬 프로세스</li><li><b>Streamable HTTP</b>: 원격 서버</li><li>원격 연결은 인증·TLS·승인 정책 필요</li></ul>
-            </article>
-            <article class="card">
-              <h3>설정 순서</h3>
-              <ul class="small"><li>서버 출처와 코드 검토</li><li>클라이언트에 command 또는 URL 등록</li><li>최소 권한 환경 변수·경로 설정</li><li>Inspector로 스키마와 호출 시험</li></ul>
-            </article>
+            <div class="icon-card warn"><i class="icon i-users"></i><h3>고객 개인정보</h3><p>가맹점 대표 연락처, 주민번호</p></div>
+            <div class="icon-card warn"><i class="icon i-chart-column"></i><h3>공개 전 실적</h3><p>발표 전 매출, 판매 대수</p></div>
+            <div class="icon-card warn"><i class="icon i-file-text"></i><h3>계약서 원문</h3><p>대리점, 제휴사 계약서</p></div>
           </div>
-          <pre>{
-  "mcpServers": {
-    "project-files": {
-      "command": "npx",
-      "args": ["-y", "@example/files-server", "/allowed/project"]
-    }
-  }
-}</pre>
-          <p style="font-size:15px">설정 키는 클라이언트마다 다르다. 공식 문서: modelcontextprotocol.io/docs · Inspector: modelcontextprotocol.io/docs/tools</p>
+          <p class="lead fragment">회사가 허용한 AI 도구인지 먼저 확인한다.</p>
         </div>
+        <aside class="notes">
+          <p>개인용 AI 서비스에 넣은 내용은 회사 밖 서버로 나갑니다. 고객 개인정보, 공개 전 실적, 계약서 원문은 넣지 마세요.</p>
+          <p>회사가 계약한 AI 도구가 있다면 그 도구의 규칙을 따르면 됩니다. 모르겠으면 보안 담당자에게 먼저 물어보세요.</p>
+        </aside>
       </section>
 
-      <section class="slide" data-title="세 가지 엔지니어링">
+      <section class="slide dark" data-title="정리와 다음 이야기">
         <div class="content">
-          <div class="kicker">PROMPT · CONTEXT · HARNESS</div>
-          <h2>좋은 지시, 좋은 재료, 좋은 실행 환경</h2>
+          <h2>오늘의 정리, 그리고 다음 이야기</h2>
           <div class="grid cols-3">
-            <article class="card engineering-card fragment" data-order="1">
-              <span class="tag">프롬프트 엔지니어링</span>
-              <h3>무엇을 어떻게 할지</h3>
-              <p>역할, 목표, 제약, 절차, 출력 형식을 명확히 설계한다.</p>
-              <div class="example-box">“SRE 리드로서 원인 3개를 근거·반증 방법·위험도 표로 작성하라.”</div>
-            </article>
-            <article class="card engineering-card fragment" data-order="2">
-              <span class="tag">컨텍스트 엔지니어링</span>
-              <h3>판단에 무엇을 쓸지</h3>
-              <p>필요한 순간에 로그, 코드, 정책, 대화 이력, 도구 결과를 선별해 제공한다.</p>
-              <div class="example-box">09:00~09:20 로그 + 08:57 배포 이력 + 결제 API 구조 + 장애 대응 정책</div>
-            </article>
-            <article class="card engineering-card fragment" data-order="3">
-              <span class="tag">하네스 엔지니어링</span>
-              <h3>어떻게 실행·검증할지</h3>
-              <p>도구 권한, 반복 루프, 승인, 테스트, 관찰 로그, 실패 복구를 코드로 통제한다.</p>
-              <div class="example-box">로그 검색 → 가설 작성 → 테스트 실행 → 실패 시 재시도 → 롤백 전 사람 승인 → 결과 기록</div>
-            </article>
+            <div class="icon-card compact"><i class="icon i-check"></i><h3>원하는 결과</h3></div>
+            <div class="icon-card compact"><i class="icon i-users"></i><h3>읽을 사람과 쓰일 곳</h3></div>
+            <div class="icon-card compact"><i class="icon i-folder-open"></i><h3>참고 자료</h3></div>
+            <div class="icon-card compact"><i class="icon i-lock"></i><h3>지켜야 할 조건</h3></div>
+            <div class="icon-card compact"><i class="icon i-sheet"></i><h3>결과의 모양</h3></div>
+            <div class="icon-card compact"><i class="icon i-badge-check"></i><h3>판단 기준</h3></div>
           </div>
-          <div class="quote fragment">프롬프트는 <strong>업무 지시서</strong>, 컨텍스트는 <strong>업무 자료</strong>, 하네스는 <strong>업무 시스템</strong>이다.</div>
+          <div class="next-up fragment">
+            <i class="icon i-notebook-pen"></i><i class="icon i-key-round"></i>
+            <p class="lead" style="margin: 0">매번 설명하기 지친다면? 다음 편에서 돌쇠에게 업무 수첩과 열쇠를 건넨다.</p>
+          </div>
+          <p class="sources">기준일 2026-09-30. 출처는 발표자 노트에 있습니다.</p>
         </div>
+        <aside class="notes">
+          <p>오늘 기억할 것은 좋은 지시서의 여섯 가지입니다. 원하는 결과, 읽을 사람과 쓰일 곳, 참고 자료, 지켜야 할 조건, 결과의 모양, 판단 기준.</p>
+          <p>그런데 이걸 매번 쓰기는 번거롭죠. 다음 편에서는 돌쇠에게 자료함, 기억, 열쇠, 업무 수첩을 건네서 매번 설명하지 않아도 되게 만듭니다.</p>
+        </aside>
       </section>
     </main>
-
-    <div class="click-hint">화면 클릭 · Space/→ 다음 · ← 뒤로 · M 목차</div>
-    <div class="controls">
-      <button type="button" onclick="prev()" aria-label="뒤로 가기">←</button>
-      <span class="counter" id="counter"></span>
-      <span class="frag-dots" id="fragDots" aria-label="현재 슬라이드의 클릭 진행 상태"></span>
-      <button type="button" onclick="next()" aria-label="다음">→</button>
-    </div>
-    <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
-
-    <script>
-      const slides = [...document.querySelectorAll(".slide")];
-      const navList = document.getElementById("navList");
-      const counter = document.getElementById("counter");
-      const fragDots = document.getElementById("fragDots");
-      const progressBar = document.getElementById("progressBar");
-      let current = 0;
-
-      const navButtons = slides.map((slide, index) => {
-        const item = document.createElement("li");
-        const button = document.createElement("button");
-        button.type = "button";
-        button.className = "nav-item";
-        button.innerHTML = `<span>${String(index + 1).padStart(2, "0")}</span><span>${slide.dataset.title}</span>`;
-        button.addEventListener("click", () => {
-          show(index);
-          document.body.classList.remove("sidebar-open");
-        });
-        item.appendChild(button);
-        navList.appendChild(item);
-        return button;
-      });
-
-      function directFragments(slide) {
-        const fragments = [...slide.querySelectorAll(".fragment")];
-        const topLevel = fragments.filter((fragment) => {
-          return !fragment.parentElement.closest(".fragment");
-        });
-        const nested = fragments.filter((fragment) => !topLevel.includes(fragment));
-        return [...topLevel, ...nested];
-      }
-
-      function updateFragDots() {
-        const fragments = directFragments(slides[current]);
-        fragDots.innerHTML = fragments
-          .map((fragment) => `<i${fragment.classList.contains("visible") ? ' class="done"' : ""}></i>`)
-          .join("");
-      }
-
-      function show(index) {
-        current = Math.max(0, Math.min(index, slides.length - 1));
-        slides.forEach((slide, i) => slide.classList.toggle("active", i === current));
-        navButtons.forEach((button, i) => button.classList.toggle("active", i === current));
-        counter.textContent = `${current + 1} / ${slides.length}`;
-        progressBar.style.width = `${((current + 1) / slides.length) * 100}%`;
-        history.replaceState(null, "", `#slide-${current + 1}`);
-        navButtons[current].scrollIntoView({ block: "nearest" });
-        updateFragDots();
-      }
-
-      function revealNext() {
-        const hidden = directFragments(slides[current]).find((fragment) => !fragment.classList.contains("visible"));
-        if (!hidden) return false;
-        hidden.classList.add("visible");
-        updateFragDots();
-        return true;
-      }
-
-      function hideLast() {
-        const visible = directFragments(slides[current]).filter((fragment) => fragment.classList.contains("visible"));
-        if (!visible.length) return false;
-        visible[visible.length - 1].classList.remove("visible");
-        updateFragDots();
-        return true;
-      }
-
-      function next() {
-        if (revealNext()) return;
-        if (current < slides.length - 1) show(current + 1);
-      }
-
-      function prev() {
-        if (hideLast()) return;
-        if (current > 0) show(current - 1);
-      }
-
-      function toggleSidebar() {
-        document.body.classList.toggle("sidebar-open");
-      }
-
-      document.addEventListener("keydown", (event) => {
-        if (event.key === "ArrowRight" || event.key === " " || event.key === "PageDown") {
-          event.preventDefault();
-          next();
-        } else if (event.key === "ArrowLeft" || event.key === "PageUp" || event.key === "Backspace") {
-          event.preventDefault();
-          prev();
-        } else if (event.key.toLowerCase() === "m") {
-          toggleSidebar();
-        } else if (event.key === "Escape") {
-          document.body.classList.remove("sidebar-open");
-        }
-      });
-
-      document.querySelector(".deck").addEventListener("click", (event) => {
-        if (event.target.closest("button, a")) return;
-        next();
-      });
-
-      const hashMatch = location.hash.match(/slide-(\d+)/);
-      show(hashMatch ? Number(hashMatch[1]) - 1 : 0);
-    </script>
+    <script src="assets/deck.js"></script>
   </body>
 </html>
