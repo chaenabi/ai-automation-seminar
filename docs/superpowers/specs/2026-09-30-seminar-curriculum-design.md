@@ -224,7 +224,7 @@ https://chaenabi.github.io/ai-automation-seminar/ 의 세미나 자료가 AI 발
 ### F. 마무리
 
 14. **맡기기 전에 확인할 여섯 가지** / 목표, 자료, 권한, 멈출 조건, 검수 기준, 기록. 사람이 개입할 세 지점(시작, 되돌릴 수 없는 행동 전, 끝)
-15. **도구는 바뀌어도 원칙은 남는다** / 세 편 정리(지시하기, 무장시키기, 맡기기). 2026-08에 사라진 ChatGPT agent 모드 사례
+15. **도구는 바뀌어도 원칙은 남는다** / 세 편 정리(지시하기, 무장시키기, 맡기기). 2026년 여름에 사라진 ChatGPT agent 모드 사례(공식 도움말은 2026-07 중순에 ChatGPT Work 안내로 바뀜)
 16. **질문, 그리고 참고 자료** / 기준일 2026-09-30, 공식 문서 링크
 
 실무 장: 4~12, 14 (10장)
@@ -273,7 +273,7 @@ https://chaenabi.github.io/ai-automation-seminar/ 의 세미나 자료가 AI 발
 | 역할극을 "효과 없다"고 단정하면 공식 가이드와 충돌 | "역할 한 줄은 말투를 맞출 뿐, 정확도를 올리지는 않는다"로 범위를 좁힘 |
 | 판단 틀 세 개가 연달아 나옴 | 03 판단표와 자동화 단계를 한 장으로, 개입 세 지점은 체크리스트로 |
 | 분업 슬라이드는 비개발자에게 필요성이 낮음 | 별도 장 삭제, 03-7에 한 줄로 흡수 |
-| Skill은 유료 요금제 전용 | 예시 박스에 요금제 조건과 대안 |
+| Skill은 유료 요금제 전용 | 사실 확인(F5) 결과 ChatGPT는 업무용 요금제, Claude는 무료 포함 전 요금제. 예시 박스에 요금제 조건과 대안 |
 | 하네스는 02보다 03에 실체가 있음 | 03-2에서 소개 |
 | BM 산출물이 업무 수첩 구조와 따로 놂 | "BM 템플릿 수첩"으로 재구성 |
 | 환각 원인 보강, 추론 모델 선택 기준, 제품명 제목 제거, 업무형 사고 추가, AI 생성물 표시와 저작권 | 각 장에 반영 |
@@ -281,9 +281,11 @@ https://chaenabi.github.io/ai-automation-seminar/ 의 세미나 자료가 AI 발
 
 ## 부록 B. 사실 확인 출처 (Fable 검토, 2026-09-30)
 
+구현 단계의 공식 출처 기준 판정은 `docs/superpowers/research/2026-09-30-facts.md`가 우선한다.
+
 | 주장 | 판정 | 출처 |
 |---|---|---|
-| ChatGPT agent 모드 2026-08 초 제거 | 맞음(공식 공지 원문 미확인) | https://community.openai.com/t/agent-mode-was-removed-with-no-real-replacement/1389601 , https://en.wikipedia.org/wiki/OpenAI_Operator |
+| ChatGPT agent 모드 2026-08 초 제거 | 일부 맞음. 공식 도움말은 2026-07 중순에 ChatGPT Work 안내로 바뀜(사실 확인 문서 F11). 슬라이드는 "2026년 여름"으로 표기 | https://community.openai.com/t/agent-mode-was-removed-with-no-real-replacement/1389601 , https://en.wikipedia.org/wiki/OpenAI_Operator |
 | ChatGPT Atlas 2026-08-09 종료 | 맞음 | https://9to5mac.com/2026/08/04/openai-explains-what-will-happen-when-chatgpt-atlas-shuts-down-this-weekend/ |
 | 통신비밀보호법은 타인 간 대화 녹음만 금지 | 맞음 | https://casenote.kr/%EB%B2%95%EB%A0%B9/%ED%86%B5%EC%8B%A0%EB%B9%84%EB%B0%80%EB%B3%B4%ED%98%B8%EB%B2%95/%EC%A0%9C3%EC%A1%B0 , https://casenote.kr/%EB%8C%80%EB%B2%95%EC%9B%90/2013%EB%8F%8415616 |
 | 당사자 녹음의 공개와 배포는 민사 책임 가능 | 맞음 | https://www.shinkim.com/kor/media/lawinfo/344 |
