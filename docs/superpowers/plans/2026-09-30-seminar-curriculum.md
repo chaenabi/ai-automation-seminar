@@ -1564,7 +1564,7 @@ table.stack th { color: var(--teal-dark); background: rgba(8,127,140,.06); font-
 }
 ```
 
-- [ ] **Step 7: 아이콘 복사와 아이콘 클래스 생성**
+- [ ] **Step 7: 아이콘 복사와 아이콘 클래스 생성** (구현 중 변경: data URI로 인라인, tools/build_icons.py)
 
 ```bash
 mkdir -p assets/icons

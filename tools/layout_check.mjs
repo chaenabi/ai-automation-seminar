@@ -105,6 +105,46 @@ function analyzeActiveSlide() {
       }
     }
   }
+  const parseColor = (value) => {
+    const srgb = /color\(srgb ([\d.]+) ([\d.]+) ([\d.]+)(?: \/ ([\d.]+))?\)/.exec(value);
+    if (srgb) return { r: srgb[1] * 255, g: srgb[2] * 255, b: srgb[3] * 255, a: srgb[4] === undefined ? 1 : Number(srgb[4]) };
+    const rgb = /rgba?\(([^)]+)\)/.exec(value);
+    if (!rgb) return null;
+    const parts = rgb[1].split(/[\s,/]+/).filter(Boolean).map(Number);
+    return { r: parts[0], g: parts[1], b: parts[2], a: parts.length > 3 ? parts[3] : 1 };
+  };
+  const luminance = ({ r, g, b }) => {
+    const channel = (v) => {
+      const c = v / 255;
+      return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+    };
+    return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
+  };
+  // Only solid backgrounds are judged; gradients, images, and translucent layers are skipped.
+  const solidBackground = (el) => {
+    for (let e = el; e && e !== document.documentElement; e = e.parentElement) {
+      const style = getComputedStyle(e);
+      if (style.backgroundImage !== "none") return null;
+      const color = parseColor(style.backgroundColor);
+      if (color && color.a >= 0.99) return color;
+      if (color && color.a > 0) return null;
+    }
+    return null;
+  };
+  for (const el of slide.querySelectorAll("*")) {
+    if (skipped(el) || el.getClientRects().length === 0) continue;
+    const hasText = [...el.childNodes].some((n) => n.nodeType === 3 && n.data.trim());
+    if (!hasText) continue;
+    const style = getComputedStyle(el);
+    const fg = parseColor(style.color);
+    const bg = solidBackground(el);
+    if (!fg || !bg) continue;
+    const [hi, lo] = [luminance(fg), luminance(bg)].sort((x, y) => y - x);
+    const ratio = (hi + 0.05) / (lo + 0.05);
+    const size = parseFloat(style.fontSize);
+    const large = size >= 24 || (size >= 18.66 && Number(style.fontWeight) >= 700);
+    if (ratio < (large ? 3 : 4.5)) issues.push({ type: "low-contrast", at: ratio.toFixed(2), where: describe(el) });
+  }
   return { issues, iconUrls: [...iconUrls] };
 }
 
