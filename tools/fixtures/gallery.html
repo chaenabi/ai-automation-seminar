@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>부품 갤러리</title>
+    <link rel="stylesheet" href="../../assets/deck.css" />
+  </head>
+  <body>
+    <main class="deck" data-deck-title="부품 갤러리">
+      <section class="slide" data-title="채팅과 문서">
+        <div class="content">
+          <h2>채팅 창 모형과 문서 모형</h2>
+          <div class="grid cols-2">
+            <div class="chat-mock bad">
+              <div class="bar">AI 채팅</div>
+              <div class="msg user">이 카피 좋지? 내가 밤새 쓴 거야.</div>
+              <div class="msg ai warn fragment">정말 훌륭해요! 고칠 곳이 거의 없습니다.</div>
+              <div class="msg ai think fragment">제품이 뭐지? 고객은 누구지?</div>
+            </div>
+            <div class="doc-mock">
+              <h4>보도자료 초안</h4>
+              <p>새 단말기는 <span class="fix">업계 최초</span>로 하루 종일 충전 없이 쓴다.</p>
+              <p><span class="hl">출시일은 10월 1일이다.</span> <span class="ok">확인</span></p>
+              <span class="zone" style="--z: var(--red)"><b>원하는 결과</b>런칭 문구 세 가지</span>
+            </div>
+          </div>
+        </div>
+        <aside class="notes"><p>채팅 창 모형과 문서 모형 예시입니다.</p></aside>
+      </section>
+
+      <section class="slide dark" data-title="흐름도">
+        <div class="content">
+          <h2>흐름도와 배지</h2>
+          <div class="pipeline">
+            <div class="step"><i class="icon i-mic"></i>녹음<span class="badge">AI</span></div>
+            <div class="arrow">→</div>
+            <div class="step"><i class="icon i-file-text"></i>전사<span class="badge">AI</span></div>
+            <div class="arrow">→</div>
+            <div class="step stop"><i class="icon i-hand"></i>사람 확인<span class="badge human">사람</span></div>
+          </div>
+          <div class="flow"><div class="node">지시</div><div class="arrow">→</div><div class="node">결과</div></div>
+          <div class="example-box"><p>화상회의 서비스는 녹음과 전사를 함께 제공한다.</p></div>
+        </div>
+        <aside class="notes"><p>어두운 장에서 글자색이 유지되는지 봅니다.</p></aside>
+      </section>
+
+      <section class="slide" data-title="시트와 판단표">
+        <div class="content">
+          <h2>시트 모형과 판단표</h2>
+          <div class="grid cols-2">
+            <div class="sheet-wrap">
+              <table class="sheet-mock">
+                <thead><tr><th>항목</th><th>가정</th><th>값</th></tr></thead>
+                <tbody>
+                  <tr><td>대상 사업장</td><td>카페, 식당, 푸드트럭</td><td class="num blank">사람이 채움</td></tr>
+                  <tr><td>교체 주기</td><td>업계 자료</td><td class="num">5년</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="matrix">
+              <div></div>
+              <div class="col-label">틀려도 피해가 작다</div>
+              <div class="col-label">틀리면 피해가 크다</div>
+              <div class="row-label">검수가 쉽다</div>
+              <div class="cell" style="--c: var(--green)"><b>완전 자동</b><span>회의록 서식 정리</span></div>
+              <div class="cell" style="--c: var(--gold)"><b>승인 후 실행</b><span>고객 메일 발송</span></div>
+              <div class="row-label">검수가 어렵다</div>
+              <div class="cell" style="--c: var(--teal)"><b>초안까지</b><span>카피 아이디어</span></div>
+              <div class="cell" style="--c: var(--red)"><b>제안만</b><span>계약 조건 판단</span></div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes"><p>시트와 판단표 예시입니다.</p></aside>
+      </section>
+
+      <section class="slide" data-title="반복과 신호등">
+        <div class="content">
+          <h2>반복 도식과 신호등</h2>
+          <div class="grid cols-2">
+            <div class="loop">
+              <svg class="loop-ring" viewBox="0 0 200 200" aria-hidden="true">
+                <defs>
+                  <marker id="gallery-head" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                    <path d="M0 0L10 5L0 10z" fill="currentColor" />
+                  </marker>
+                </defs>
+                <path d="M133.8 27.5 A80 80 0 0 1 172.5 66.2" marker-end="url(#gallery-head)" />
+                <path d="M172.5 133.8 A80 80 0 0 1 133.8 172.5" marker-end="url(#gallery-head)" />
+                <path d="M66.2 172.5 A80 80 0 0 1 27.5 133.8" marker-end="url(#gallery-head)" />
+                <path d="M27.5 66.2 A80 80 0 0 1 66.2 27.5" marker-end="url(#gallery-head)" />
+              </svg>
+              <div class="loop-node top">계획</div>
+              <div class="loop-node right">실행</div>
+              <div class="loop-node bottom">확인</div>
+              <div class="loop-node left">다시</div>
+              <div class="loop-center">목표</div>
+            </div>
+            <div class="signal">
+              <div class="light go"><b>대화에 참여한 녹음</b><p>알리고 동의받기</p></div>
+              <div class="light wait"><b>봇만 남긴 녹음</b><p>법무 확인</p></div>
+              <div class="light stop"><b>동의 없는 공개</b><p>하지 않기</p></div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes"><p>반복 도식의 marker id는 장마다 달라야 합니다.</p></aside>
+      </section>
+
+      <section class="slide" data-title="장면과 겹친 그림">
+        <div class="content">
+          <h2>장면과 겹친 그림</h2>
+          <div class="grid cols-2">
+            <div class="scene">
+              <div class="say"><img class="avatar" src="../../assets/people/yangban.png" alt="양반" /><div class="bubble"><span class="who">양반</span>걸레는 박씨에게 받아 써라.</div></div>
+              <div class="say right fragment"><img class="avatar" src="../../assets/people/dolsoe.png" alt="돌쇠" /><div class="bubble"><span class="who">돌쇠</span>예, 알겠습니다.</div></div>
+              <div class="say fragment"><img class="avatar" src="../../assets/people/parkssi.png" alt="박씨" /><div class="bubble"><span class="who">박씨</span>장부에 적어 두었네.</div></div>
+            </div>
+            <div class="image-swap">
+              <img class="hero-image" src="../../assets/김홍도_타작.png" alt="김홍도의 타작" />
+              <img class="hero-image fragment" src="../../assets/김홍도_타작_관리감독.png" alt="관리 감독을 표시한 타작" />
+            </div>
+          </div>
+        </div>
+        <aside class="notes"><p>아바타와 겹친 그림 예시입니다.</p></aside>
+      </section>
+
+      <section class="slide dark" data-title="카드와 분기">
+        <div class="content">
+          <h2>아이콘 카드, 분기도, 스위치</h2>
+          <div class="grid cols-3">
+            <div class="icon-card"><i class="icon i-folder-open"></i><h3>자료함</h3><p>무엇을 아나</p></div>
+            <div class="icon-card warn"><i class="icon i-ban"></i><h3>넣지 않기</h3><p>고객 개인정보</p></div>
+            <div class="fork">
+              <div class="root">검토해 주세요</div>
+              <div class="branches"><span class="chip">맞춤법?</span><span class="chip">사실 확인?</span><span class="chip">말투?</span></div>
+            </div>
+          </div>
+          <div class="grid cols-2">
+            <div class="toggle on">읽기<i class="sw"></i></div>
+            <div class="toggle">쓰기<i class="sw"></i></div>
+          </div>
+        </div>
+        <aside class="notes"><p>어두운 장 위의 흰 부품 예시입니다.</p></aside>
+      </section>
+    </main>
+    <script src="../../assets/deck.js"></script>
+  </body>
+</html>
