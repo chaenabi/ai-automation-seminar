@@ -4,3 +4,4 @@ assets/*:Zone.Identifier
 .repo/
 tools/node_modules/
 tools/out/
+tools/__pycache__/
