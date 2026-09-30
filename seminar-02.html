@@ -63,7 +63,7 @@
         </div>
         <aside class="notes">
           <p>지시서를 프롬프트, AI에게 건네는 재료를 컨텍스트라고 부릅니다. 요즘은 말을 잘 다듬는 것보다 재료를 잘 골라 주는 쪽이 결과를 더 크게 바꿉니다.</p>
-          <p>반복해서 일하고, 멈추고, 기록하게 만드는 작업 환경도 있는데요, 그건 3편에서 다룹니다.</p>
+          <p>반복해서 일하고, 멈추고, 기록하게 만드는 작업 환경도 있는데요, 이걸 하네스라고 부릅니다. 3편에서 다룹니다.</p>
         </aside>
       </section>
 
@@ -104,6 +104,7 @@
         <aside class="notes">
           <p>AI 서비스마다 프로젝트나 맞춤 도우미라는 기능이 있습니다. 자료와 지침을 한 번 올려 두면 그 안에서 하는 모든 대화에 적용돼요.</p>
           <p>우리 팀이라면 브랜드 가이드, 포켓페이 P1 스펙, 지난 캠페인 결과, 벤치마킹할 Zebra의 공개 자료를 넣어 두면 됩니다.</p>
+          <p>Gemini의 Gem은 2026년 11월부터 개인 계정에서 skills로 바뀝니다.</p>
         </aside>
       </section>
 
@@ -111,7 +112,7 @@
         <div class="content">
           <h2>창고지기 박씨는 이렇게 찾는다</h2>
           <div class="pipeline">
-            <div class="step fragment"><i class="icon i-message-square"></i>질문<span class="chip">“Zebra 연차 보고서에서 판매 채널 이야기만 찾아줘”</span></div>
+            <div class="step fragment"><i class="icon i-message-square"></i>질문<span class="chip">“Zebra 연차 보고서에서 결제 제품 이야기만 찾아줘”</span></div>
             <div class="arrow fragment">→</div>
             <div class="step fragment"><i class="icon i-file-search"></i>관련 부분 찾기</div>
             <div class="arrow fragment">→</div>
@@ -126,7 +127,7 @@
           </div>
         </div>
         <aside class="notes">
-          <p>자료함에 넣은 문서를 AI가 통째로 외우는 건 아닙니다. 질문과 관련된 부분을 찾아 읽고, 그걸 근거로 답합니다. 창고지기 박씨가 장부를 뒤져 필요한 쪽만 펼쳐 보는 것과 같아요. 이 방식을 RAG라고 부릅니다.</p>
+          <p>자료함에 넣은 문서를 AI가 통째로 외우는 건 아닙니다. 자료가 적으면 통째로 읽고, 많아지면 질문과 관련된 부분만 찾아 읽은 뒤 그걸 근거로 답합니다. 창고지기 박씨가 장부를 뒤져 필요한 쪽만 펼쳐 보는 것과 같아요. 이 방식을 RAG라고 부릅니다.</p>
           <p>그래서 자료가 낡았거나 버전이 여러 개 섞여 있으면 답도 흐려집니다. 최신본만, 날짜를 붙여서, 꼭 필요한 것만 넣으세요.</p>
         </aside>
       </section>
@@ -151,7 +152,7 @@
         </div>
         <aside class="notes">
           <p>요즘 AI 서비스는 대화하면서 알게 된 것을 스스로 기억합니다. 내가 표를 좋아한다거나, 우리 브랜드 말투가 어떤지 같은 것들이요. 매번 말하지 않아도 되니 편리합니다.</p>
-          <p>문제는 틀린 기억입니다. 출시일이 10월 15일로 바뀌었는데 예전 날짜를 기억하고 있으면 엉뚱한 문서가 나옵니다. 가끔 무엇을 기억하는지 열어 보고, 틀린 건 지우세요. 민감한 대화는 기억이 남지 않는 임시 채팅이나 익명 채팅을 쓰세요.</p>
+          <p>문제는 틀린 기억입니다. 출시일이 10월 15일로 바뀌었는데 예전 날짜를 기억하고 있으면 엉뚱한 문서가 나옵니다. 가끔 무엇을 기억하는지 열어 보고, 틀린 건 지우세요. 민감한 대화는 기억이 남지 않는 임시 채팅이나 익명 채팅을 쓰세요. 다만 임시 채팅도 서버로는 가니, 1편에서 말한 넣으면 안 되는 것은 여기서도 넣지 않습니다.</p>
         </aside>
       </section>
 
@@ -176,13 +177,13 @@
               <div class="msg ai">
                 <ol>
                   <li>박람회 부스 배치도 회신, 수요일까지</li>
-                  <li>포켓페이 P1 사진 촬영, 금요일 오후</li>
+                  <li>포켓페이 P1 사진 촬영, 월요일 오전</li>
                   <li>대리점 설명회 자료 초안, 다음 주 월요일</li>
                 </ol>
               </div>
             </div>
           </div>
-          <div class="example-box"><p>Claude는 Gmail, Google 캘린더, Google Drive, Notion, Slack 커넥터를 무료 요금제에서도 연결할 수 있다. ChatGPT는 앱, Gemini는 Google 앱 연결로 같은 일을 한다.</p></div>
+          <div class="example-box"><p>Claude는 Gmail, Google 캘린더, Google Drive, Notion, Slack 커넥터를 무료 요금제에서도 연결할 수 있다. ChatGPT도 같은 서비스를 앱으로 연결하지만 요금제별 범위는 앱마다 다르고, Gemini는 Gmail, Drive, 캘린더 같은 Google 앱을 연결한다.</p></div>
         </div>
         <aside class="notes">
           <p>커넥터는 AI가 메일, 드라이브, 캘린더 같은 다른 서비스에 들어갈 수 있게 해 주는 열쇠입니다. 열쇠를 주면 "지난주 메일 정리해줘"처럼 복사해 붙이지 않아도 되는 일이 생깁니다.</p>
@@ -214,7 +215,7 @@
           </div>
         </div>
         <aside class="notes">
-          <p>열쇠에는 두 가지 위험이 있습니다. 비밀번호를 손등에 적는 것처럼 열쇠 자체가 새어 나가는 위험, 그리고 청소하라고 준 열쇠로 돈까지 옮기는 것처럼 맡긴 범위를 넘는 위험입니다.</p>
+          <p>열쇠에는 두 가지 위험이 있습니다. 비밀번호를 손등에 적는 것처럼 열쇠 자체가 새어 나가는 위험, 그리고 돈을 꺼내 오라고 했더니 제 판단으로 뒤뜰에 묻는 것처럼 맡긴 범위를 넘는 위험입니다.</p>
           <p>그래서 꼭 필요한 것만 엽니다. 읽기만 필요하면 읽기만, 보내기나 삭제는 실행 전에 내 승인을 받게 하세요. 그리고 회사가 승인한 커넥터만 씁니다.</p>
         </aside>
       </section>
@@ -249,7 +250,7 @@
                 <thead><tr><th>원문</th><th>수정안</th><th>이유</th></tr></thead>
                 <tbody>
                   <tr><td data-label="원문">업계 최초</td><td data-label="수정안">삭제</td><td data-label="이유">근거 자료 없음</td></tr>
-                  <tr><td data-label="원문">10월 1일</td><td data-label="수정안">10월 15일</td><td data-label="이유">본문 출시일과 다름</td></tr>
+                  <tr><td data-label="원문">10월 1일</td><td data-label="수정안">10월 15일</td><td data-label="이유">킥오프에서 정한 출시일과 다름</td></tr>
                   <tr><td data-label="원문">24시간</td><td data-label="수정안">18시간</td><td data-label="이유">제품 스펙과 다름</td></tr>
                   <tr><td data-label="원문">포켓 페이 P1</td><td data-label="수정안">포켓페이 P1</td><td data-label="이유">제품명 표기 통일</td></tr>
                 </tbody>
@@ -306,7 +307,7 @@
                 <tbody>
                   <tr><td>포켓페이 P1</td><td class="num">89,000원</td><td class="num">5,500원</td><td class="num">155,000원</td></tr>
                   <tr><td>경쟁 제품 A</td><td class="num">120,000원</td><td class="num">3,300원</td><td class="num">159,600원</td></tr>
-                  <tr><td>경쟁 제품 B</td><td class="num">0원</td><td class="num">11,000원</td><td class="num bad">11,000원</td></tr>
+                  <tr><td>경쟁 제품 B</td><td class="num">0원</td><td class="num">14,000원</td><td class="num bad">14,000원</td></tr>
                 </tbody>
               </table>
               <p class="sources" style="margin-top: 8px">모든 제품과 수치는 설명용 가상 예시</p>
@@ -323,7 +324,7 @@
               <div class="wide half">수익원</div>
             </div>
           </div>
-          <div class="chips fragment" style="margin-top: 16px"><span class="chip warn"><i class="icon i-triangle-alert"></i>경쟁 제품 B의 1년 총비용이 한 달 치만 계산됨. 수식과 수치는 반드시 확인</span></div>
+          <div class="chips fragment" style="margin-top: 16px"><span class="chip warn"><i class="icon i-triangle-alert"></i>경쟁 제품 B는 한 달 치만 계산됐다. 실제 1년 총비용은 168,000원으로 가장 비싸다</span></div>
         </div>
         <aside class="notes">
           <p>사업 모델을 검토할 때 쓰는 사내 양식이 있다면 그것도 업무 수첩이 됩니다. 경쟁 제품 비용표를 만드는 순서와 BM 캔버스 아홉 칸을 채우는 순서를 적어 두세요.</p>
@@ -338,14 +339,14 @@
           <div class="signal">
             <div class="light go fragment"><b>대화에 참여한 내가 녹음</b><p>법 위반은 아니지만, 먼저 알리고 동의를 받는다</p></div>
             <div class="light wait fragment"><b>AI 회의 봇만 남기고 자리를 비움</b><p>남의 대화를 녹음한 것이 될 수 있다. 법무 확인</p></div>
-            <div class="light stop fragment"><b>동의 없이 녹음이나 전사본 공개</b><p>손해배상 책임이 생길 수 있다</p></div>
+            <div class="light stop fragment"><b>동의 없이 녹음 파일을 퍼뜨림</b><p>손해배상 책임이 생길 수 있다. 전사본 공유도 법무 확인</p></div>
           </div>
           <div class="quote fragment">알리고, 동의받기.</div>
         </div>
         <aside class="notes">
           <p>마지막으로 네 도구를 모두 써서 회의 녹음을 요약하고 공유해 보겠습니다. 그 전에 꼭 짚을 것이 있어요.</p>
           <p>통신비밀보호법은 남들끼리 나누는 대화를 녹음하는 것을 금지합니다. 대화에 참여한 사람이 녹음하는 건 이 법 위반이 아닙니다. 하지만 녹음기나 AI 회의 봇만 남겨 두고 자리를 비우면 남의 대화를 녹음한 것이 될 수 있어요. 이 부분은 해석이 필요하니 법무팀에 확인하세요.</p>
-          <p>또 녹음이나 전사본을 동의 없이 공개하면 민사 책임이 생길 수 있다는 판결도 있습니다. 결론은 간단합니다. 시작할 때 알리고 동의를 받으세요. 참고로 아이폰 통화 녹음은 상대방에게도 녹음 안내 음성이 나갑니다. 외부 클라우드에 올려도 되는지는 사내 정책을 따르고, 고객이나 파트너와의 회의는 특히 조심하세요.</p>
+          <p>또 녹음한 음성을 동의 없이 퍼뜨리면 손해배상 책임이 생길 수 있다는 대법원 판결도 있습니다. 전사본을 돌려 보는 것도 법무팀에 확인하세요. 결론은 간단합니다. 시작할 때 알리고 동의를 받으세요. 참고로 아이폰 통화 녹음은 상대방에게도 녹음 안내 음성이 나갑니다. 외부 클라우드에 올려도 되는지는 사내 정책을 따르고, 고객이나 파트너와의 회의는 특히 조심하세요.</p>
         </aside>
       </section>
 
@@ -360,7 +361,7 @@
             <div class="arrow fragment">→</div>
             <div class="step fragment"><i class="icon i-pencil-line"></i>고유명사 교정<span class="badge">AI</span><span class="chip">자료함의 용어집</span></div>
             <div class="arrow fragment">→</div>
-            <div class="step fragment"><i class="icon i-list-checks"></i>요약과 할 일<span class="badge">AI</span><span class="chip">수첩의 회의록 양식</span></div>
+            <div class="step fragment"><i class="icon i-list-checks"></i>요약과 할 일<span class="badge">AI</span><span class="chip">수첩의 회의록 양식</span><span class="chip">기억한 보고 형식</span></div>
             <div class="arrow fragment">→</div>
             <div class="step stop fragment"><i class="icon i-send"></i>확인 후 공유<span class="badge human">사람</span><span class="chip">열쇠로 메일 초안</span></div>
           </div>
@@ -368,7 +369,7 @@
         </div>
         <aside class="notes">
           <p>녹음 시작은 사람이 합니다. 전사는 화상회의 서비스나 녹음 앱이 해 주고, 제품명과 사람 이름은 자료함의 용어집으로 바로잡습니다.</p>
-          <p>Google Meet 전사는 일부 Workspace 요금제에서만 되니 회사 계정에서 먼저 확인하세요. 요약은 업무 수첩의 회의록 양식대로 받고, 공유는 열쇠로 메일 초안까지 만들게 한 뒤 사람이 확인하고 보냅니다. 오늘 배운 네 가지가 모두 들어갔습니다.</p>
+          <p>Google Meet 전사는 일부 Workspace 요금제에서만 되니 회사 계정에서 먼저 확인하세요. 요약은 업무 수첩의 회의록 양식대로, 기억해 둔 대로 표로 받고, 공유는 열쇠로 메일 초안까지 만들게 한 뒤 사람이 확인하고 보냅니다. 오늘 배운 네 가지가 모두 들어갔습니다.</p>
         </aside>
       </section>
 
@@ -411,7 +412,7 @@
           </table>
         </div>
         <aside class="notes">
-          <p>헷갈리면 이 표를 보세요. 붙여 넣기가 반복되면 자료함, 같은 부탁을 반복하면 기억, 다른 서비스에서 가져와야 하면 열쇠, 같은 절차를 반복하면 업무 수첩입니다.</p>
+          <p>헷갈리면 이 표를 보세요. 붙여 넣기가 반복되면 자료함, 내 취향을 매번 다시 말하면 기억, 다른 서비스에서 가져와야 하면 열쇠, 같은 절차를 반복하면 업무 수첩입니다.</p>
         </aside>
       </section>
 
