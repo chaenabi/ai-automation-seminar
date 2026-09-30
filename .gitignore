@@ -2,3 +2,5 @@ assets/*:Zone.Identifier
 .DS_Store
 .git/
 .repo/
+tools/node_modules/
+tools/out/

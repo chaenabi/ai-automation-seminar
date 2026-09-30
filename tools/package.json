@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "engine": "node engine_test.mjs",
+    "layout": "node layout_check.mjs"
+  },
+  "devDependencies": {
+    "lucide-static": "1.49.0",
+    "playwright-core": "1.63.0"
+  }
+}

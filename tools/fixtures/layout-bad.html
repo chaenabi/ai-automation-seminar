@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <title>layout-bad</title>
+    <style>
+      body { margin: 0; font: 20px/1.5 sans-serif; word-break: keep-all; }
+      .slide { position: absolute; inset: 0; display: none; overflow: auto; padding: 20px; }
+      .slide.active { display: block; }
+    </style>
+  </head>
+  <body>
+    <section class="slide active">
+      <p>가나다라마바<br />사</p>
+      <p style="width: 40px; overflow-wrap: anywhere">가나다라마바사아자차</p>
+      <img src="assets/없는그림.png" alt="없는 그림" />
+    </section>
+    <section class="slide">
+      <div style="height: 3000px">긴 내용</div>
+    </section>
+    <section class="slide">
+      <div style="width: 3000px">넓은 내용</div>
+    </section>
+  </body>
+</html>
