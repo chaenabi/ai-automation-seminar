@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>AI Study Seminar</title>
+    <title>AI 세미나: 일 잘 시키는 법부터 맡기기까지</title>
     <style>
       @font-face {
         font-family: "Pretendard Variable";
@@ -26,7 +26,7 @@
       .kicker { color: #9ddfe1; font-weight: 850; letter-spacing: .08em; }
       h1 { margin: 14px 0 16px; font-size: clamp(44px, 7vw, 82px); line-height: 1.05; }
       .lead { max-width: 800px; color: #cbdbe2; font-size: clamp(20px, 2.2vw, 29px); line-height: 1.5; }
-      .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; margin-top: 42px; }
+      .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin-top: 42px; }
       .card {
         padding: 28px;
         border: 1px solid rgba(255,255,255,.15);
@@ -47,6 +47,12 @@
         font-weight: 850;
       }
       .tag.orange { background: #df6e3c; }
+      .card { display: flex; flex-direction: column; align-items: flex-start; }
+      .card .actions { margin-top: auto; }
+      .tag.gold { background: #d7a52b; color: #14202a; }
+      h1, .card h2 { text-wrap: balance; }
+      .lead, .card p { text-wrap: pretty; }
+      body { word-break: keep-all; }
       .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
       a.button {
         padding: 10px 14px;
@@ -63,23 +69,26 @@
   <body>
     <main>
       <div class="kicker">AI STUDY SEMINAR</div>
-      <h1>AI 자동화와<br />Harness Engineering</h1>
-      <p class="lead">개념을 이해하는 입문편과 CLI 환경에서 안전하고 반복 가능한 Agent 작업 시스템을 만드는 실전편입니다.</p>
+      <h1>AI에게 일을 맡기는 법</h1>
+      <p class="lead">지시하고, 무장시키고, 맡기기까지. 개발자가 아니어도 오늘 바로 쓸 수 있는 <span style="white-space: nowrap">세 편의 이야기</span>입니다.</p>
       <div class="grid">
         <article class="card">
           <span class="tag">SEMINAR 01</span>
-          <h2>AI를 통한 자동화</h2>
-          <p>업무 위임의 본질, Software 1.0~3.0, 컨텍스트, 프롬프트, MCP를 설명합니다.</p>
+          <h2>지시하기</h2>
+          <p>AI가 일하는 방식과 좋은 지시서. 회의록, 카피, 시장 규모로 연습합니다.</p>
           <div class="actions"><a class="button" href="slides.html">발표 자료 열기</a></div>
         </article>
         <article class="card">
           <span class="tag orange">SEMINAR 02</span>
-          <h2>실전 Harness Engineering</h2>
-          <p>RAG, MCP, A2A, Skills, sub-agent, persona, rules, policy, 2nd brain을 CLI 예제로 구성합니다.</p>
-          <div class="actions">
-            <a class="button" href="cli-harness.html">발표 자료 열기</a>
-            <a class="button secondary" href="examples/harness-lab/README.md">실습 예제 보기</a>
-          </div>
+          <h2>무장시키기</h2>
+          <p>자료함, 기억, 열쇠, 업무 수첩. 회의 녹음부터 공유까지 한 흐름으로 만듭니다.</p>
+          <div class="actions"><a class="button" href="seminar-02.html">발표 자료 열기</a></div>
+        </article>
+        <article class="card">
+          <span class="tag gold">SEMINAR 03</span>
+          <h2>맡기기</h2>
+          <p>에이전트에게 조사와 반복 업무를 맡기고, 어디서 사람이 멈춰야 하는지 정합니다.</p>
+          <div class="actions"><a class="button" href="seminar-03.html">발표 자료 열기</a></div>
         </article>
       </div>
     </main>
